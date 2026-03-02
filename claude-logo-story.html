@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logo Claude — Sejarah & Filosofi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --terra: #da7756;
+    --terra-light: #f0b89a;
+    --terra-dark: #b85a38;
+    --cream: #faf6f1;
+    --ink: #1a1208;
+    --warm-gray: #8b7355;
+    --card-bg: #fff9f4;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 2rem;
+    background: var(--ink);
+    overflow: hidden;
+  }
+
+  .hero-bg-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(218,119,86,0.15);
+    animation: pulse-ring 4s ease-in-out infinite;
+  }
+  .hero-bg-ring:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
+  .hero-bg-ring:nth-child(2) { width: 500px; height: 500px; animation-delay: 0.5s; }
+  .hero-bg-ring:nth-child(3) { width: 700px; height: 700px; animation-delay: 1s; }
+  .hero-bg-ring:nth-child(4) { width: 900px; height: 900px; animation-delay: 1.5s; }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.02); }
+  }
+
+  /* CLAUDE LOGO SVG recreation */
+  .logo-container {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 3rem;
+    cursor: pointer;
+  }
+
+  .logo-svg {
+    width: 120px;
+    height: 120px;
+    animation: logo-float 3s ease-in-out infinite;
+  }
+
+  @keyframes logo-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(3deg); }
+  }
+
+  .logo-container:hover .logo-svg {
+    animation: logo-spin 1s ease forwards;
+  }
+
+  @keyframes logo-spin {
+    to { transform: rotate(360deg) scale(1.1); }
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--terra);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    z-index: 2;
+    position: relative;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 700;
+    color: var(--cream);
+    text-align: center;
+    line-height: 1.1;
+    z-index: 2;
+    position: relative;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.5s forwards;
+  }
+
+  .hero-title em {
+    color: var(--terra);
+    font-style: italic;
+  }
+
+  .hero-sub {
+    font-size: 0.8rem;
+    color: var(--warm-gray);
+    text-align: center;
+    margin-top: 1.5rem;
+    z-index: 2;
+    position: relative;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.7s forwards;
+  }
+
+  .scroll-cta {
+    position: absolute;
+    bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 2;
+    opacity: 0;
+    animation: fade-up 0.8s ease 1.2s forwards;
+  }
+
+  .scroll-cta span { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--warm-gray); text-transform: uppercase; }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--terra), transparent);
+    animation: scroll-line 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scroll-line {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,246,241,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(218,119,86,0.2);
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--warm-gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  nav a:hover, nav a.active { color: var(--terra); }
+
+  /* SECTIONS */
+  section {
+    padding: 5rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--terra);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--terra);
+    opacity: 0.4;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+
+  .body-text {
+    font-size: 0.85rem;
+    line-height: 1.9;
+    color: #3d2e1e;
+    margin-bottom: 1.5rem;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--terra), transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -2.4rem;
+    top: 0.4rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--terra);
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 3px rgba(218,119,86,0.2);
+  }
+
+  .timeline-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--terra);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-item h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  /* PHILOSOPHY CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .phil-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(218,119,86,0.15);
+    border-radius: 12px;
+    padding: 1.75rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .phil-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .phil-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(218,119,86,0.12);
+    border-color: var(--terra);
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(218,119,86,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .phil-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: var(--terra-dark);
+  }
+
+  .phil-card p {
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #5a4a38;
+  }
+
+  /* ANATOMY SECTION */
+  .anatomy-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (max-width: 600px) {
+    .anatomy-wrapper { grid-template-columns: 1fr; }
+  }
+
+  .anatomy-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .anatomy-svg {
+    width: 200px;
+    height: 200px;
+  }
+
+  .anatomy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .anatomy-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+
+  .anatomy-item:hover { background: rgba(218,119,86,0.07); }
+
+  .anatomy-item.active { background: rgba(218,119,86,0.12); }
+
+  .anatomy-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--terra);
+    min-width: 24px;
+    padding-top: 2px;
+  }
+
+  .anatomy-item-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .anatomy-item-desc {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: #5a4a38;
+  }
+
+  /* COLOR SECTION */
+  .color-showcase {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .color-chip {
+    flex: 1;
+    min-width: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .color-chip:hover { transform: scale(1.03); }
+
+  .color-swatch {
+    height: 100px;
+  }
+
+  .color-info {
+    padding: 0.75rem;
+    background: white;
+  }
+
+  .color-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .color-hex {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--warm-gray);
+  }
+
+  /* QUOTE */
+  .big-quote {
+    border-left: 3px solid var(--terra);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    background: rgba(218,119,86,0.04);
+    border-radius: 0 12px 12px 0;
+  }
+
+  .big-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .big-quote cite {
+    font-size: 0.7rem;
+    color: var(--warm-gray);
+    letter-spacing: 0.1em;
+    font-style: normal;
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--terra), transparent);
+    opacity: 0.2;
+    margin: 1rem 0;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: var(--warm-gray);
+    text-align: center;
+    padding: 3rem 2rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  footer span { color: var(--terra); }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.2s;
+    max-width: 200px;
+    text-align: center;
+  }
+
+  /* Highlight petal on hover */
+  .petal { transition: opacity 0.3s, fill 0.3s; }
+  .petal:hover { opacity: 0.8; fill: #f0b89a !important; }
+
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- HERO -->
+<section class="hero" style="max-width:none; padding:0; min-height:100vh; position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+  <div class="hero-bg-ring"></div>
+  <div class="hero-bg-ring"></div>
+  <div class="hero-bg-ring"></div>
+  <div class="hero-bg-ring"></div>
+
+  <div class="logo-container" onclick="rotateLogo(this)" title="Klik untuk berputar!">
+    <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Starburst / pinwheel petals — Claude logo recreation -->
+      <g transform="translate(50,50)">
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(0)" data-tip="Petal atas — Kreativitas"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(40)" data-tip="Inovasi"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(80)" data-tip="Kolaborasi"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(120)" data-tip="Keamanan AI"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(160)" data-tip="Kejujuran"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(200)" data-tip="Transparansi"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(240)" data-tip="Empati"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(280)" data-tip="Riset ilmiah"/>
+        <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(320)" data-tip="Harmoni manusia-AI"/>
+        <circle cx="0" cy="0" r="8" fill="#1a1208"/>
+      </g>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">Anatomi Sebuah Simbol</p>
+  <h1 class="hero-title">Logo <em>Claude</em> —<br>Sejarah & Makna</h1>
+  <p class="hero-sub">Dari starburst ke filosofi AI · Sebuah eksplorasi interaktif</p>
+
+  <div class="scroll-cta">
+    <span>Gulir ke bawah</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#sejarah">Sejarah</a>
+  <a href="#nama">Nama</a>
+  <a href="#anatomi">Anatomi Logo</a>
+  <a href="#warna">Warna</a>
+  <a href="#filosofi">Filosofi</a>
+</nav>
+
+<!-- SEJARAH -->
+<section id="sejarah">
+  <p class="section-label">01 — Asal Usul</p>
+  <h2 class="section-title">Dari Stealth Mode ke Dunia</h2>
+  <p class="body-text">
+    Anthropic didirikan pada 2021 oleh Dario Amodei, Daniela Amodei, dan sejumlah peneliti mantan OpenAI. Mereka ingin membangun AI yang tidak hanya cerdas, tapi juga aman, steerable, dan selaras dengan nilai manusia — sebuah misi yang kemudian terpatri di setiap pixel identitas visual mereka.
+  </p>
+  <p class="body-text">
+    Studio desain <strong>Geist</strong> dipercaya membangun brand dari nol sejak Anthropic masih dalam mode stealth. Selama dua setengah tahun, mereka merancang visual identity yang mencerminkan nilai pendiri: human-centered, scientifically rigorous, dan jauh dari klise tech startup.
+  </p>
+
+  <div class="big-quote">
+    <p>"Segala sesuatu yang dilakukan Anthropic berfokus pada penyelarasan teknologi dengan nilai manusia."</p>
+    <cite>— Geist Studio, Tim Desain Anthropic</cite>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2021</div>
+      <h3>Anthropic Berdiri</h3>
+      <p class="body-text" style="margin:0">Didirikan oleh mantan peneliti OpenAI. Geist Studio mulai membangun brand identity dari stealth mode — logo, tipografi, sistem warna, dan website.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">Mid 2023</div>
+      <h3>Claude Diluncurkan ke Publik</h3>
+      <p class="body-text" style="margin:0">Logo starburst / pinwheel terra cotta debut bersama peluncuran Claude. Brand langsung dikenal karena kehangatan warnanya yang unik di antara AI kompetitor.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2024</div>
+      <h3>Claude 3 Family</h3>
+      <p class="body-text" style="margin:0">Opus, Sonnet, Haiku lahir. Logo tetap stabil — sinyal bahwa Anthropic percaya pada konsistensi brand sebagai fondasi kepercayaan.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2025</div>
+      <h3>Claude 4 & Seterusnya</h3>
+      <p class="body-text" style="margin:0">Model makin canggih, identitas visual tetap sama. Stabilitas logo ini sendiri adalah pesan: kepercayaan dibangun lewat konsistensi, bukan gimmick.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width:900px;margin:0 auto;"></div>
+
+<!-- NAMA -->
+<section id="nama">
+  <p class="section-label">02 — Asal Nama</p>
+  <h2 class="section-title">Claude = Claude Shannon</h2>
+  <p class="body-text">
+    Nama "Claude" bukan kebetulan. Ia adalah penghormatan kepada <strong>Claude Shannon</strong> (1916–2001), matematikawan dan electrical engineer Amerika yang dikenal sebagai <em>Bapak Teori Informasi</em>.
+  </p>
+  <p class="body-text">
+    Pada 1948, Shannon menerbitkan paper legendaris <em>"A Mathematical Theory of Communication"</em> yang memperkenalkan konsep <strong>"bit"</strong> sebagai satuan informasi — fondasi dari seluruh dunia komputasi modern. Tanpanya, internet, komputer, dan AI seperti yang kita kenal hari ini mungkin tidak ada.
+  </p>
+  <p class="body-text">
+    Dengan menamakan AI-nya "Claude", Anthropic mengklaim warisan intelektual yang dalam: bahwa pekerjaan mereka bukan sekadar produk teknologi, melainkan kelanjutan dari riset ilmiah yang punya akar akademis serius.
+  </p>
+
+  <div class="big-quote">
+    <p>"Penamaan ini menambahkan lapisan otoritas intelektual — dan desain logo secara halus memperkuat warisan tersebut lewat strukturnya yang logis dan teratur."</p>
+    <cite>— Analisis Brand Claude</cite>
+  </div>
+</section>
+
+<div class="divider" style="max-width:900px;margin:0 auto;"></div>
+
+<!-- ANATOMI LOGO -->
+<section id="anatomi">
+  <p class="section-label">03 — Desain</p>
+  <h2 class="section-title">Anatomi Logo</h2>
+  <p class="body-text">Setiap elemen dirancang dengan niat. Klik setiap item untuk menyoroti bagian terkait.</p>
+
+  <div class="anatomy-wrapper">
+    <div class="anatomy-logo">
+      <svg class="anatomy-svg" id="anatomy-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,50)">
+          <ellipse id="petal-group-a" class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(0)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(40)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(80)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(120)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(160)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(200)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(240)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#c96840" transform="rotate(280)"/>
+          <ellipse class="petal" cx="0" cy="-22" rx="7" ry="18" fill="#da7756" transform="rotate(320)"/>
+          <circle id="center-dot" cx="0" cy="0" r="8" fill="#1a1208"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="anatomy-list" id="anatomy-list">
+      <div class="anatomy-item" data-highlight="petals" onclick="highlightPart(this, 'petals')">
+        <span class="anatomy-num">01</span>
+        <div>
+          <div class="anatomy-item-title">Starburst / Pinwheel</div>
+          <div class="anatomy-item-desc">Sembilan petal yang memancar ke luar — simbol ide yang menyebar, energi yang mengalir dari satu titik ke segala arah. Bukan huruf "C", melainkan representasi abstrak pikiran yang memancar.</div>
+        </div>
+      </div>
+      <div class="anatomy-item" data-highlight="color" onclick="highlightPart(this, 'color')">
+        <span class="anatomy-num">02</span>
+        <div>
+          <div class="anatomy-item-title">Terra Cotta Warm</div>
+          <div class="anatomy-item-desc">Warna utama #da7756 — terra cotta hangat yang sengaja menghindari biru teknologi khas AI. Kehangatan ini menyiratkan empati, bukan dinginnya mesin.</div>
+        </div>
+      </div>
+      <div class="anatomy-item" data-highlight="center" onclick="highlightPart(this, 'center')">
+        <span class="anatomy-num">03</span>
+        <div>
+          <div class="anatomy-item-title">Titik Pusat</div>
+          <div class="anatomy-item-desc">Lingkaran hitam di tengah sebagai anchor — stabilitas, kepercayaan, dan titik fokus dari mana semua radiasi bermakna dimulai.</div>
+        </div>
+      </div>
+      <div class="anatomy-item" data-highlight="rotate" onclick="highlightPart(this, 'rotate')">
+        <span class="anatomy-num">04</span>
+        <div>
+          <div class="anatomy-item-title">Simetri Radial</div>
+          <div class="anatomy-item-desc">Susunan rotasional 40° per petal menciptakan kesan pergerakan berkelanjutan — AI yang terus belajar dan berkembang tanpa henti.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width:900px;margin:0 auto;"></div>
+
+<!-- WARNA -->
+<section id="warna">
+  <p class="section-label">04 — Palet Warna</p>
+  <h2 class="section-title">Sistem Warna yang Disengaja</h2>
+  <p class="body-text">
+    Tim Geist mengembangkan sistem warna yang bisa menangani dua kebutuhan berbeda: marketing communications dan product UI — semuanya dengan kehangatan yang konsisten.
+  </p>
+
+  <div class="color-showcase">
+    <div class="color-chip" onclick="copyColor('#da7756')">
+      <div class="color-swatch" style="background:#da7756;"></div>
+      <div class="color-info">
+        <div class="color-name">Terra Cotta</div>
+        <div class="color-hex">#da7756 · Primary</div>
+      </div>
+    </div>
+    <div class="color-chip" onclick="copyColor('#c96840')">
+      <div class="color-swatch" style="background:#c96840;"></div>
+      <div class="color-info">
+        <div class="color-name">Deep Terra</div>
+        <div class="color-hex">#c96840 · Accent</div>
+      </div>
+    </div>
+    <div class="color-chip" onclick="copyColor('#faf6f1')">
+      <div class="color-swatch" style="background:#faf6f1; border:1px solid #e8ddd0;"></div>
+      <div class="color-info">
+        <div class="color-name">Warm Cream</div>
+        <div class="color-hex">#faf6f1 · Background</div>
+      </div>
+    </div>
+    <div class="color-chip" onclick="copyColor('#1a1208')">
+      <div class="color-swatch" style="background:#1a1208;"></div>
+      <div class="color-info">
+        <div class="color-name">Warm Ink</div>
+        <div class="color-hex">#1a1208 · Text</div>
+      </div>
+    </div>
+  </div>
+  <p class="body-text" style="margin-top:1.5rem; font-size:0.75rem; color:var(--warm-gray);">💡 Klik kartu warna untuk copy HEX code-nya!</p>
+</section>
+
+<div class="divider" style="max-width:900px;margin:0 auto;"></div>
+
+<!-- FILOSOFI -->
+<section id="filosofi">
+  <p class="section-label">05 — Makna Lebih Dalam</p>
+  <h2 class="section-title">Logo sebagai Pernyataan Nilai</h2>
+  <p class="body-text">
+    Di industri AI yang berlomba-lomba dengan neon, gradien agresif, dan estetika super-futuristik — Claude memilih restraint. Dan justru itulah yang membuatnya menonjol. Logo ini bukan sekadar simbol, tapi <em>janji</em>.
+  </p>
+
+  <div class="cards-grid">
+    <div class="phil-card">
+      <div class="card-icon">🔍</div>
+      <h3>Transparansi & Kepercayaan</h3>
+      <p>Desain bersih tanpa ornamen berlebihan mencerminkan komitmen Anthropic terhadap keterbukaan dalam pengembangan AI. Tidak ada yang disembunyikan.</p>
+    </div>
+    <div class="phil-card">
+      <div class="card-icon">🤝</div>
+      <h3>Human-Centric Design</h3>
+      <p>Tepi yang lembut, warna hangat, dan proporsi yang approachable menyiratkan empati. Claude dirancang untuk mendampingi manusia, bukan mendominasi.</p>
+    </div>
+    <div class="phil-card">
+      <div class="card-icon">🔬</div>
+      <h3>Akar Ilmiah</h3>
+      <p>Referensi ke Claude Shannon dan strukturnya yang logis-teratur menandakan bahwa ini bukan sekadar hype — ada riset mendalam di baliknya.</p>
+    </div>
+    <div class="phil-card">
+      <div class="card-icon">⚖️</div>
+      <h3>Safety First</h3>
+      <p>Ketika kompetitor tampil flashy, Claude tampil tenang. Restraint visual adalah metafora dari prinsip kerja AI yang hati-hati dan bertanggung jawab.</p>
+    </div>
+    <div class="phil-card">
+      <div class="card-icon">✨</div>
+      <h3>Ide yang Memancar</h3>
+      <p>Starburst adalah visualisasi dari momen pencerahan — saat percakapan menghasilkan insight. Setiap petal adalah ide yang baru lahir.</p>
+    </div>
+    <div class="phil-card">
+      <div class="card-icon">📐</div>
+      <h3>Konsistensi = Kepercayaan</h3>
+      <p>Logo tidak berubah sejak 2021. Di dunia AI yang bergerak cepat, stabilitas brand adalah sinyal kepercayaan yang paling kuat.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Dibuat dengan ❤️ oleh <span>Jean</span> · Semua informasi berdasarkan riset brand Anthropic & Geist Studio · 2026
+</footer>
+
+<script>
+  // Intersection Observer for animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, entry.target.dataset.delay || 0);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.timeline-item, .phil-card').forEach((el, i) => {
+    el.dataset.delay = i * 100;
+    observer.observe(el);
+  });
+
+  // Petal tooltip
+  document.querySelectorAll('.petal[data-tip]').forEach(petal => {
+    const tooltip = document.getElementById('tooltip');
+    petal.addEventListener('mousemove', (e) => {
+      tooltip.style.left = e.clientX + 12 + 'px';
+      tooltip.style.top = e.clientY - 30 + 'px';
+      tooltip.textContent = petal.dataset.tip;
+      tooltip.style.opacity = '1';
+    });
+    petal.addEventListener('mouseleave', () => {
+      tooltip.style.opacity = '0';
+    });
+  });
+
+  // Anatomy highlight
+  function highlightPart(item, part) {
+    document.querySelectorAll('.anatomy-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+
+    const petals = document.querySelectorAll('#anatomy-logo-svg .petal');
+    const center = document.getElementById('center-dot');
+    const svg = document.getElementById('anatomy-logo-svg');
+
+    // Reset
+    petals.forEach(p => { p.style.opacity = '1'; p.style.fill = ''; });
+    center.style.opacity = '1';
+    svg.style.animation = '';
+
+    if (part === 'petals') {
+      center.style.opacity = '0.3';
+      petals.forEach(p => { p.style.opacity = '1'; p.style.fill = '#f0a070'; });
+    } else if (part === 'color') {
+      petals.forEach((p, i) => { p.style.fill = i % 2 === 0 ? '#ff9466' : '#e05830'; });
+    } else if (part === 'center') {
+      petals.forEach(p => p.style.opacity = '0.3');
+      center.style.opacity = '1';
+      center.style.fill = '#da7756';
+    } else if (part === 'rotate') {
+      svg.style.animation = 'logo-spin-slow 3s linear infinite';
+    }
+  }
+
+  // Copy color
+  function copyColor(hex) {
+    navigator.clipboard.writeText(hex).catch(() => {});
+    const tooltip = document.getElementById('tooltip');
+    tooltip.textContent = hex + ' disalin!';
+    tooltip.style.left = '50%';
+    tooltip.style.top = '50%';
+    tooltip.style.opacity = '1';
+    setTimeout(() => tooltip.style.opacity = '0', 1500);
+  }
+
+  // Logo click rotate
+  function rotateLogo(el) {
+    el.querySelector('svg').style.animation = 'none';
+    el.querySelector('svg').style.transform = 'rotate(360deg)';
+    el.querySelector('svg').style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    setTimeout(() => {
+      el.querySelector('svg').style.transform = '';
+      el.querySelector('svg').style.transition = '';
+      el.querySelector('svg').style.animation = '';
+    }, 800);
+  }
+
+  // Active nav
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+
+  // Add slow spin keyframe
+  const style = document.createElement('style');
+  style.textContent = '@keyframes logo-spin-slow { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
