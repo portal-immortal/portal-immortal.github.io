@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-numeral="latin">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Waktu Sholat</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--t:0.4s cubic-bezier(0.4,0,0.2,1)}
+[data-theme="dark"]{
+  --bg:#0D0D0F;--surface:#141416;--surface2:#1C1C20;
+  --border:rgba(255,255,255,0.07);--text:#F0EDE8;--muted:rgba(240,237,232,0.38);
+  --accent:#C8A97E;--accent2:#7FAF95;--glow:rgba(200,169,126,0.12);
+  --shadow:0 8px 48px rgba(0,0,0,0.65);
+}
+[data-theme="light"]{
+  --bg:#F6F3EE;--surface:#FFFFFF;--surface2:#EDE9E1;
+  --border:rgba(0,0,0,0.08);--text:#1A1814;--muted:rgba(26,24,20,0.42);
+  --accent:#8B6434;--accent2:#3E7A60;--glow:rgba(139,100,52,0.1);
+  --shadow:0 8px 40px rgba(0,0,0,0.1);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;transition:background var(--t),color var(--t);overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 90% 50% at 50% -5%,var(--glow),transparent 65%);
+}
+.wrap{position:relative;z-index:1;max-width:468px;margin:0 auto;padding:22px 18px 64px}
+
+/* TOPBAR */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;animation:fadeD .5s ease both}
+.app-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;letter-spacing:4px;text-transform:uppercase;color:var(--accent)}
+.controls{display:flex;gap:7px}
+.ctrl-btn{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;
+  font-size:0.72rem;font-weight:500;letter-spacing:0.3px;
+  padding:6px 11px;transition:all .2s;display:flex;align-items:center;gap:5px;
+}
+.ctrl-btn:hover{color:var(--text);border-color:var(--accent);background:var(--surface)}
+.ctrl-btn svg{width:13px;height:13px;flex-shrink:0}
+
+/* LOCATION */
+.loc-bar{
+  text-align:center;font-size:0.73rem;color:var(--muted);letter-spacing:.5px;
+  margin-bottom:24px;min-height:16px;animation:fadeD .5s .06s ease both;
+}
+.loc-bar span{color:var(--accent)}
+
+/* CLOCK */
+.hijri{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:.82rem;color:var(--accent2);text-align:center;
+  margin-top:4px;margin-bottom:0;letter-spacing:.3px;
+}
+.clock-wrap{text-align:center;margin-bottom:26px;animation:fadeD .5s .1s ease both}
+.live-clock{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3.8rem,17vw,5.8rem);
+  font-weight:300;line-height:1;letter-spacing:-2px;color:var(--text);
+}
+.live-clock .colon{animation:blink 1s step-end infinite;color:var(--accent)}
+@keyframes blink{50%{opacity:.15}}
+.clock-date{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:5px}
+
+/* NEXT CARD */
+.next-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:22px 26px;margin-bottom:14px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);animation:fadeU .5s .14s ease both;
+  transition:background var(--t),border-color var(--t);
+}
+.next-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+.next-lbl{font-size:.62rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.next-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.next-name{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:400;color:var(--text);line-height:1}
+.next-ar{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;color:var(--accent);margin-top:3px}
+.next-time{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:300;color:var(--accent);letter-spacing:-.5px}
+
+/* COUNTDOWN */
+.cd-wrap{display:flex;align-items:baseline;gap:3px}
+.cd-blk{text-align:center;min-width:50px}
+.cd-num{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;line-height:1;display:block;color:var(--text)}
+.cd-unit{font-size:.58rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-top:1px}
+.cd-sep{font-family:'Cormorant Garamond',serif;font-size:2.1rem;color:var(--accent);opacity:.45;align-self:flex-start;padding-top:2px}
+
+/* PROGRESS */
+.prog-wrap{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.prog-lbl{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);letter-spacing:.4px;margin-bottom:5px}
+.prog-track{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;transition:width 1s linear}
+
+/* PRAYER LIST */
+.prayer-list{display:flex;flex-direction:column;gap:7px;animation:fadeU .5s .18s ease both}
+.p-row{
+  display:flex;align-items:center;padding:13px 18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;
+  transition:all .22s;position:relative;overflow:hidden;
+}
+.p-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);opacity:0;transition:opacity .3s}
+.p-row.is-next{border-color:rgba(200,169,126,.28);background:var(--surface2)}
+.p-row.is-next::before{opacity:1}
+.p-row.is-past{opacity:.38}
+.p-idx{font-family:'Cormorant Garamond',serif;font-size:.72rem;color:var(--muted);width:16px;margin-right:13px;flex-shrink:0}
+.p-info{flex:1}
+.p-en{font-size:.88rem;font-weight:500;color:var(--text);display:block}
+.p-ar{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.76rem;color:var(--muted);display:block;margin-top:1px}
+.p-time{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:400;color:var(--text);letter-spacing:-.2px}
+.p-row.is-next .p-time{color:var(--accent)}
+.p-dot{width:5px;height:5px;border-radius:50%;background:var(--border);margin-left:10px;flex-shrink:0;transition:background .3s}
+.p-row.is-next .p-dot{background:var(--accent)}
+
+/* NOTIF */
+.notif-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;
+  padding:13px 18px;margin-top:14px;animation:fadeU .5s .22s ease both;
+  transition:background var(--t);
+}
+.n-t1{font-size:.84rem;color:var(--text)}
+.n-t2{font-size:.68rem;color:var(--muted);margin-top:2px}
+.toggle{position:relative;width:42px;height:23px;flex-shrink:0}
+.toggle input{display:none}
+.tog-track{
+  position:absolute;inset:0;border-radius:12px;background:var(--surface2);
+  border:1px solid var(--border);cursor:pointer;transition:all .3s;
+}
+.tog-track::after{
+  content:'';position:absolute;width:17px;height:17px;border-radius:50%;
+  background:var(--muted);top:2px;left:2px;transition:all .3s;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.toggle input:checked+.tog-track{background:var(--accent);border-color:var(--accent)}
+.toggle input:checked+.tog-track::after{transform:translateX(19px);background:#fff}
+
+/* IMSAK ROW (Ramadan only) */
+.imsak-row{border-style:dashed!important;opacity:.75}
+.imsak-row .p-en{color:var(--accent2)!important}
+.imsak-row .p-time{color:var(--accent2)!important;font-size:1.15rem!important}
+.imsak-row .p-ar{color:var(--accent2)!important;opacity:.7}
+.imsak-row.is-past{opacity:.28}
+
+/* LOADING / ERROR */
+.loading{display:flex;flex-direction:column;align-items:center;padding:80px 0;gap:14px;color:var(--muted);font-size:.84rem;letter-spacing:.4px}
+.loader{width:34px;height:34px;border:1.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{text-align:center;padding:40px 20px;color:var(--muted);font-size:.84rem;line-height:1.7}
+.err button{
+  display:inline-block;margin-top:12px;background:var(--surface2);
+  border:1px solid var(--accent);color:var(--accent);padding:8px 20px;
+  border-radius:8px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;
+}
+.err button:hover{background:var(--accent);color:var(--bg)}
+
+/* ANIMATIONS */
+@keyframes fadeD{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeU{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="app-title">Sholat</div>
+    <div class="controls">
+      <button class="ctrl-btn" onclick="toggleNumeral()" title="Ganti numeral">
+        <svg viewBox="0 0 20 16" fill="currentColor"><text y="13" font-size="13">١٢</text></svg>
+        <span id="num-lbl">٣٤٥</span>
+      </button>
+      <button class="ctrl-btn" onclick="toggleTheme()" title="Ganti tema">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="loc-bar" id="loc">Mendeteksi lokasi…</div>
+
+  <div class="clock-wrap">
+    <div class="live-clock">
+      <span id="ch" class="n">00</span><span class="colon">:</span><span id="cm" class="n">00</span><span class="colon">:</span><span id="cs" class="n">00</span>
+    </div>
+    <div class="clock-date" id="cdate">—</div>
+    <div class="hijri" id="hijri"></div>
+  </div>
+
+  <div id="app">
+    <div class="loading"><div class="loader"></div>Memuat jadwal…</div>
+  </div>
+
+</div>
+<script>
+// ─── CONFIG ───
+const PRAYERS=[
+  {key:'subuh',  name:'Subuh',  ar:'الفجر' },
+  {key:'dzuhur', name:'Dzuhur', ar:'الظهر' },
+  {key:'ashar',  name:'Ashar',  ar:'العصر' },
+  {key:'maghrib',name:'Maghrib',ar:'المغرب'},
+  {key:'isya',   name:'Isya',   ar:'العشاء'},
+];
+const AR=['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ─── STATE ───
+let pData=null, notifOn=false, notifTimers=[], cdTick=null;
+let numMode='latin', themeMode='dark';
+let isRamadan=false, imsakData=null;
+
+const n2 = v => String(v).padStart(2,'0');
+const toN = s => numMode==='latin' ? s : String(s).replace(/[0-9]/g,d=>AR[+d]);
+
+// ─── CLOCK ───
+function tickClock(){
+  const now=new Date();
+  document.getElementById('ch').textContent=toN(n2(now.getHours()));
+  document.getElementById('cm').textContent=toN(n2(now.getMinutes()));
+  document.getElementById('cs').textContent=toN(n2(now.getSeconds()));
+  document.getElementById('cdate').textContent=
+    `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(tickClock,1000); tickClock();
+
+// ─── THEME ───
+function toggleTheme(){
+  themeMode=themeMode==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',themeMode);
+  const ico=document.getElementById('theme-icon');
+  ico.innerHTML=themeMode==='light'
+    ?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    :'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  if(pData) renderApp();
+}
+
+// ─── NUMERAL ───
+function toggleNumeral(){
+  numMode=numMode==='latin'?'arabic':'latin';
+  document.getElementById('num-lbl').textContent=numMode==='latin'?'٣٤٥':'123';
+  tickClock();
+  if(pData){renderApp();startCountdown();}
+}
+
+// ─── GPS & API ───
+function init(){
+  if(!navigator.geolocation){showErr('Browser tidak mendukung geolokasi.');return;}
+  navigator.geolocation.getCurrentPosition(onPos,onGeoErr,{enableHighAccuracy:true,timeout:12000});
+}
+
+async function onPos(pos){
+  const {latitude:lat,longitude:lng}=pos.coords;
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=id`);
+    const d=await r.json();
+    const addr=d.address||{};
+    const countryCode=(addr.country_code||'').toLowerCase();
+
+    // Kalau di luar Indonesia → pakai Aladhan
+    if(countryCode && countryCode!=='id'){
+      const cityLabel=addr.city||addr.town||addr.county||addr.state||d.display_name||'Unknown';
+      setLoc(`📍 <span>${cityLabel}</span>`);
+      await fetchAladhan(lat,lng,cityLabel);
+      return;
+    }
+
+    // Indonesia: kumpulkan semua level wilayah dari Nominatim
+    const addressLevels=[
+      addr.village, addr.suburb, addr.town, addr.city_district,
+      addr.city, addr.county, addr.state_district, addr.state
+    ].filter(Boolean);
+
+    const displayName=addressLevels[0]||'Jakarta';
+    setLoc(`📍 <span>${displayName}</span>`);
+    await searchCity(addressLevels);
+  }catch{
+    setLoc(`📍 <span>Jakarta (default)</span>`);
+    await searchCity(['jakarta']);
+  }
+}
+
+async function searchCity(addressLevels){
+  // addressLevels = array dari spesifik ke umum, e.g. ['Bojong Gede','Bogor','Jawa Barat']
+  if(!Array.isArray(addressLevels)) addressLevels=[addressLevels];
+
+  for(const level of addressLevels){
+    const candidates=buildCandidates(level);
+    for(const kw of candidates){
+      try{
+        const r=await fetch(`https://api.myquran.com/v3/sholat/kabkota/cari/${encodeURIComponent(kw)}`);
+        const d=await r.json();
+        if(d.status && d.data?.length){
+          setLoc(`📍 <span>${d.data[0].lokasi}</span>`);
+          await fetchToday(d.data[0].id);
+          return;
+        }
+      }catch{}
+    }
+  }
+  showErr(`Kota tidak ditemukan untuk area ini.<br>Coba refresh halaman.`);
+}
+
+function buildCandidates(keyword) {
+  const kw = keyword.toLowerCase().trim();
+  const candidates = new Set();
+
+  // Strip direction words and admin prefixes (Nominatim sering return "South Jakarta", "Kota Bogor", dll)
+  let stripped = kw
+    .replace(/\b(south|north|east|west|central)\s+/gi, '')
+    .replace(/\bkota\s+|kabupaten\s+/gi, '')
+    .trim();
+
+  // Full stripped word
+  candidates.add(stripped);
+
+  // First word only
+  const firstWord = stripped.split(/\s+/)[0];
+  candidates.add(firstWord);
+
+  // Last word only (e.g. "South Jakarta" → "jakarta")
+  const lastWord = kw.split(/\s+/).pop();
+  candidates.add(lastWord);
+
+  // Each word individually
+  kw.split(/\s+/).forEach(w => candidates.add(w));
+
+  // Remove empties, sort by length desc (try more specific first)
+  return [...candidates]
+    .filter(c => c && c.length >= 3)
+    .sort((a,b) => b.length - a.length);
+}
+
+async function fetchToday(id){
+  try{
+    const r=await fetch(`https://api.myquran.com/v3/sholat/jadwal/${id}/today?tz=Asia/Jakarta`);
+    const d=await r.json();
+    if(!d.status) throw 0;
+    const j=Object.values(d.data.jadwal)[0];
+    const today=new Date();
+    pData=PRAYERS.map(p=>{
+      const [h,m]=j[p.key].split(':').map(Number);
+      const dt=new Date(today); dt.setHours(h,m,0,0);
+      return{...p,ts:j[p.key].slice(0,5),dt};
+    });
+    // Simpan imsak (tersedia di response myquran)
+    if(j.imsak){
+      const [h,m]=j.imsak.split(':').map(Number);
+      const dt=new Date(today); dt.setHours(h,m,0,0);
+      imsakData={key:'imsak',name:'Imsak',ar:'الإمساك',ts:j.imsak.slice(0,5),dt};
+    }
+    await fetchHijri(); // harus selesai dulu supaya isRamadan & hijri text sudah di-set sebelum render
+    renderApp();
+    startCountdown();
+  }catch{showErr('Gagal memuat jadwal. Periksa koneksi.');}
+}
+
+async function fetchAladhan(lat,lng,cityLabel){
+  try{
+    const r=await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=2`);
+    const d=await r.json();
+    if(d.code!==200) throw 0;
+    const t=d.data.timings;
+    const today=new Date();
+    const keyMap={subuh:'Fajr',dzuhur:'Dhuhr',ashar:'Asr',maghrib:'Maghrib',isya:'Isha'};
+    pData=PRAYERS.map(p=>{
+      const ts=t[keyMap[p.key]]?.slice(0,5)||'00:00';
+      const [h,m]=ts.split(':').map(Number);
+      const dt=new Date(today); dt.setHours(h,m,0,0);
+      return{...p,ts,dt};
+    });
+    // Imsak dari Aladhan
+    if(t.Imsak){
+      const ts=t.Imsak.slice(0,5);
+      const [h,m]=ts.split(':').map(Number);
+      const dt=new Date(today); dt.setHours(h,m,0,0);
+      imsakData={key:'imsak',name:'Imsak',ar:'الإمساك',ts,dt};
+    }
+    // Deteksi Ramadan dari Aladhan hijri date
+    const hijriMonth=parseInt(d.data.date?.hijri?.month?.number||0);
+    isRamadan=(hijriMonth===9);
+    // Tampilkan tanggal Hijriyah dari Aladhan juga
+    try{
+      const hd=d.data.date.hijri;
+      document.getElementById('hijri').textContent=
+        `${hd.weekday.ar}, ${toN(hd.day)} ${hd.month.ar} ${toN(hd.year)} H`;
+    }catch{}
+    setLoc(`📍 <span>${cityLabel}</span>`);
+    renderApp();
+    startCountdown();
+  }catch{showErr('Gagal memuat jadwal. Periksa koneksi.');}
+}
+
+async function fetchHijri(){
+  try{
+    const r=await fetch('https://api.myquran.com/v3/cal/today?tz=Asia/Jakarta');
+    const d=await r.json();
+    if(d.status){
+      const h=d.data.hijr;
+      document.getElementById('hijri').textContent=
+        `${h.dayName}, ${toN(h.day)} ${h.monthName} ${toN(h.year)} H`;
+      // Deteksi Ramadan — coba berbagai field name dari myquran API
+      const mNum = parseInt(h.monthNumber || h.month || 0);
+      isRamadan = (mNum === 9);
+    }
+  }catch{}
+}
+
+function onGeoErr(){
+  setLoc(`📍 <span>Jakarta (default)</span>`);
+  searchCity(['jakarta']);
+}
+function setLoc(html){document.getElementById('loc').innerHTML=html;}
+
+// ─── HELPERS ───
+function getNext(){
+  const now=new Date();
+  return pData.find(p=>p.dt>now)||pData[0];
+}
+function getPrev(){
+  const now=new Date();
+  let last=pData[pData.length-1];
+  for(let i=0;i<pData.length;i++) if(now<pData[i].dt) return i===0?last:pData[i-1];
+  return last;
+}
+
+// ─── RENDER ───
+function renderApp(){
+  const next=getNext(), prev=getPrev(), now=new Date();
+  const total=next.dt-prev.dt, elapsed=now-prev.dt;
+  const pct=Math.min(100,Math.max(0,(elapsed/total)*100)).toFixed(1);
+
+  // Imsak row — hanya tampil di bulan Ramadan
+  const imsakRow = (isRamadan && imsakData) ? `
+    <div class="p-row imsak-row${imsakData.dt<now?' is-past':''}">
+      <span class="p-idx n">·</span>
+      <div class="p-info">
+        <span class="p-en">${imsakData.name}</span>
+        <span class="p-ar">${imsakData.ar}</span>
+      </div>
+      <span class="p-time n">${toN(imsakData.ts)}</span>
+      <span class="p-dot"></span>
+    </div>` : '';
+
+  const rows=pData.map((p,i)=>{
+    const isPast=p.dt<now&&p.key!==next.key;
+    const isNext=p.key===next.key;
+    const isSubuh=p.key==='subuh';
+    return`${isSubuh ? imsakRow : ''}<div class="p-row${isNext?' is-next':''}${isPast?' is-past':''}">
+      <span class="p-idx n">${toN(i+1)}</span>
+      <div class="p-info">
+        <span class="p-en">${p.name}</span>
+        <span class="p-ar">${p.ar}</span>
+      </div>
+      <span class="p-time n">${toN(p.ts)}</span>
+      <span class="p-dot"></span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML=`
+    <div class="next-card">
+      <div class="next-lbl">Waktu Sholat Berikutnya</div>
+      <div class="next-row">
+        <div>
+          <div class="next-name">${next.name}</div>
+          <div class="next-ar">${next.ar}</div>
+        </div>
+        <div class="next-time n">${toN(next.ts)}</div>
+      </div>
+      <div class="cd-wrap">
+        <div class="cd-blk"><span class="cd-num n" id="cdh">00</span><span class="cd-unit">jam</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-blk"><span class="cd-num n" id="cdm">00</span><span class="cd-unit">menit</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-blk"><span class="cd-num n" id="cds">00</span><span class="cd-unit">detik</span></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-lbl">
+          <span>${prev.name}</span>
+          <span id="pct-lbl">${toN(pct)}%</span>
+          <span>${next.name}</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="pfill" style="width:${pct}%"></div></div>
+      </div>
+    </div>
+    <div class="prayer-list">${rows}</div>
+    <div class="notif-bar">
+      <div>
+        <div class="n-t1">Pengingat Sholat</div>
+        <div class="n-t2">Notifikasi 5 menit sebelum waktu</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="notif-chk" onchange="toggleNotif(this.checked)"${notifOn?' checked':''}>
+        <span class="tog-track"></span>
+      </label>
+    </div>`;
+  updateCD();
+}
+
+// ─── COUNTDOWN ───
+function startCountdown(){
+  if(cdTick) clearInterval(cdTick);
+  cdTick=setInterval(()=>{
+    updateCD();
+    const next=getNext();
+    const diff=next.dt-new Date();
+    if(diff>=0&&diff<1100) setTimeout(()=>{renderApp();startCountdown();},1100);
+  },1000);
+}
+
+function updateCD(){
+  if(!pData) return;
+  const next=getNext();
+  let diff=next.dt-new Date();
+  if(diff<0) diff+=86400000;
+  const h=n2(Math.floor(diff/3600000));
+  const m=n2(Math.floor((diff%3600000)/60000));
+  const s=n2(Math.floor((diff%60000)/1000));
+  const eh=document.getElementById('cdh');
+  const em=document.getElementById('cdm');
+  const es=document.getElementById('cds');
+  if(eh) eh.textContent=toN(h);
+  if(em) em.textContent=toN(m);
+  if(es) es.textContent=toN(s);
+  // progress
+  const prev=getPrev();
+  const total=next.dt-prev.dt, elapsed=new Date()-prev.dt;
+  const pct=Math.min(100,Math.max(0,(elapsed/total)*100)).toFixed(1);
+  const pf=document.getElementById('pfill');
+  const pl=document.getElementById('pct-lbl');
+  if(pf) pf.style.width=pct+'%';
+  if(pl) pl.textContent=toN(pct)+'%';
+}
+
+// ─── NOTIF ───
+async function toggleNotif(on){
+  if(on){
+    const p=await Notification.requestPermission();
+    if(p!=='granted'){
+      alert('Aktifkan izin notifikasi di browser.');
+      document.getElementById('notif-chk').checked=false;
+      notifOn=false; return;
+    }
+    notifOn=true; scheduleNotifs();
+  }else{
+    notifOn=false;
+    notifTimers.forEach(clearTimeout); notifTimers=[];
+  }
+}
+function scheduleNotifs(){
+  notifTimers.forEach(clearTimeout); notifTimers=[];
+  const now=new Date();
+  // Jadwalkan notif untuk waktu sholat wajib
+  pData.forEach(p=>{
+    const pre=p.dt-now-300000;
+    if(pre>0) notifTimers.push(setTimeout(()=>
+      new Notification(`🕌 ${p.name} dalam 5 menit`,{body:`Pukul ${p.ts}`}),pre));
+    const ex=p.dt-now;
+    if(ex>0) notifTimers.push(setTimeout(()=>
+      new Notification(`🕌 Waktu ${p.name}`,{body:`Saatnya sholat ${p.name}`}),ex));
+  });
+  // Notif Imsak (Ramadan only)
+  if(isRamadan && imsakData){
+    const pre=imsakData.dt-now-300000;
+    if(pre>0) notifTimers.push(setTimeout(()=>
+      new Notification(`🌙 Imsak dalam 5 menit`,{body:`Imsak pukul ${imsakData.ts}`}),pre));
+    const ex=imsakData.dt-now;
+    if(ex>0) notifTimers.push(setTimeout(()=>
+      new Notification(`🌙 Waktu Imsak`,{body:`Segera hentikan makan & minum`}),ex));
+  }
+}
+
+function showErr(msg){
+  document.getElementById('app').innerHTML=
+    `<div class="err"><div>${msg}</div><button onclick="init()">Coba Lagi</button></div>`;
+}
+
+init();
+</script>
+</body>
+</html>
