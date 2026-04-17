@@ -270,11 +270,8 @@ async function onPos(pos){
       return;
     }
 
-    // Indonesia: kumpulkan semua level wilayah dari Nominatim
-    const addressLevels=[
-      addr.village, addr.suburb, addr.town, addr.city_district,
-      addr.city, addr.county, addr.state_district, addr.state
-    ].filter(Boolean);
+    // Indonesia: gunakan hanya level admin yang lebih tinggi untuk pencarian kota/kabupaten
+    const addressLevels=getSearchLocations(addr);
 
     const displayName=addressLevels[0]||'Jakarta';
     setLoc(`📍 <span>${displayName}</span>`);
@@ -286,7 +283,7 @@ async function onPos(pos){
 }
 
 async function searchCity(addressLevels){
-  // addressLevels = array dari spesifik ke umum, e.g. ['Bojong Gede','Bogor','Jawa Barat']
+  // addressLevels = array dari spesifik ke umum, e.g. ['Jakarta','Jawa Barat']
   if(!Array.isArray(addressLevels)) addressLevels=[addressLevels];
 
   for(const level of addressLevels){
@@ -306,6 +303,27 @@ async function searchCity(addressLevels){
   showErr(`Kota tidak ditemukan untuk area ini.<br>Coba refresh halaman.`);
 }
 
+function getSearchLocations(addr){
+  const locations=[];
+  const add = v => { if(v && !locations.includes(v)) locations.push(v); };
+
+  add(addr.city);
+  add(addr.town);
+  add(addr.county);
+  add(addr.state_district);
+  add(addr.state);
+
+  // Fallback hanya jika level kota/kabupaten tidak tersedia
+  if(!locations.length){
+    add(addr.city_district);
+    add(addr.region);
+    add(addr.village);
+    add(addr.suburb);
+  }
+
+  return locations;
+}
+
 function buildCandidates(keyword) {
   const kw = keyword.toLowerCase().trim();
   const candidates = new Set();
@@ -316,19 +334,12 @@ function buildCandidates(keyword) {
     .replace(/\bkota\s+|kabupaten\s+/gi, '')
     .trim();
 
-  // Full stripped word
+  // Full stripped keyword
   candidates.add(stripped);
 
-  // First word only
+  // First word only, to support multi-word city names like "Jakarta Selatan"
   const firstWord = stripped.split(/\s+/)[0];
-  candidates.add(firstWord);
-
-  // Last word only (e.g. "South Jakarta" → "jakarta")
-  const lastWord = kw.split(/\s+/).pop();
-  candidates.add(lastWord);
-
-  // Each word individually
-  kw.split(/\s+/).forEach(w => candidates.add(w));
+  if(firstWord) candidates.add(firstWord);
 
   // Remove empties, sort by length desc (try more specific first)
   return [...candidates]
