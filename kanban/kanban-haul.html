@@ -1,4 +1,241 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kanban — Haul</title>
+  <style>
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;line-height:1.3;margin:0;background:#0f172a;color:#e6eef8}
+    .wrap{max-width:1100px;margin:32px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:20px;margin:0}
+    .hstat{display:flex;gap:12px;align-items:center;color:#93c5fd;font-size:13px}
+    .hstat .last-save{font-size:12px;color:#9ca3af}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .col{background:#071127;padding:12px;border-radius:8px}
+    .col h3{margin:0 0 8px 0;color:#60a5fa}
+    .card{background:#021129;padding:10px;border-radius:6px;margin-bottom:10px;color:#cfe8ff}
+    .card .meta{font-size:12px;color:#94a3b8;margin-top:8px}
+    .controls{display:flex;gap:8px;margin-bottom:12px}
+    .controls input,.controls select{padding:8px;border-radius:6px;border:1px solid #16324a;background:#02172a;color:#e6eef8}
+    .btn{padding:8px 10px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+    .toast{position:fixed;right:16px;bottom:16px;background:#032b4a;color:#bde0ff;padding:10px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,0.6);display:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Kanban Haul</h1>
+        <div class="hstat" id="headerStats">
+          <div id="progPct">0%</div>
+          <div class="last-save" id="lastSave">belum disimpan</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn" id="clearBtn">Reset contoh</button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <input id="newTask" placeholder="Judul tugas" />
+      <input id="newCat" placeholder="Kategori" />
+      <select id="newCol">
+        <option value="todo">To Do</option>
+        <option value="doing">Doing</option>
+        <option value="done">Done</option>
+      </select>
+      <button class="btn" id="addBtn">Tambah</button>
+    </div>
+
+    <div class="board" id="board">
+      <div class="col" id="col-todo">
+        <h3>To Do</h3>
+        <div id="cards-todo"></div>
+      </div>
+      <div class="col" id="col-doing">
+        <h3>Doing</h3>
+        <div id="cards-doing"></div>
+      </div>
+      <div class="col" id="col-done">
+        <h3>Done</h3>
+        <div id="cards-done"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'kanban_haul_v2';
+      let tasks = [];
+      let nextId = 1;
+      let lastSaveTime = 0;
+      const autoSaveDelay = 300;
+      let autoSaveTimer = null;
+
+      const defaultTasks = [
+        {id:1,title:'Rencanakan acara haul',cat:'Admin',col:'todo',modified:Date.now()},
+        {id:2,title:'Hubungi donatur',cat:'Outreach',col:'doing',modified:Date.now()},
+        {id:3,title:'Susun daftar penerima',cat:'Logistik',col:'done',modified:Date.now()}
+      ];
+
+      // util: human readable recent time
+      function formatTimeRecent(ts){
+        if(!ts) return '—';
+        const s = Math.floor((Date.now()-ts)/1000);
+        if(s < 10) return 'baru saja';
+        if(s < 60) return s+' detik lalu';
+        const m = Math.floor(s/60);
+        if(m < 60) return m+' menit lalu';
+        const h = Math.floor(m/60);
+        if(h < 24) return h+' jam lalu';
+        const d = new Date(ts);
+        return d.toLocaleString();
+      }
+
+      function showToast(message){
+        const t = document.getElementById('toast');
+        t.textContent = message;
+        t.style.display = 'block';
+        clearTimeout(t._hide);
+        t._hide = setTimeout(()=>{t.style.display='none'}, 2500);
+      }
+
+      function save(){
+        try{
+          lastSaveTime = Date.now();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({tasks,nextId,lastSaveTime}));
+          updateHeaderStats();
+          showToast('Tersimpan '+formatTimeRecent(lastSaveTime));
+        }catch(e){
+          console.error('Save error',e);
+          showToast('Gagal menyimpan');
+        }
+      }
+
+      function autoSave(){
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(save, autoSaveDelay);
+      }
+
+      function load(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(raw){
+            const obj = JSON.parse(raw);
+            tasks = obj.tasks || [];
+            nextId = obj.nextId || (tasks.reduce((m,t)=>Math.max(m,t.id),0)+1) || 1;
+            lastSaveTime = obj.lastSaveTime || 0;
+          }else{
+            tasks = defaultTasks.slice();
+            nextId = tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
+            lastSaveTime = 0;
+            save();
+          }
+        }catch(e){
+          console.error('Load error',e);
+          tasks = defaultTasks.slice();
+          nextId = tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
+        }
+      }
+
+      function updateHeaderStats(){
+        const total = tasks.length;
+        const done = tasks.filter(t=>t.col==='done').length;
+        const pct = total?Math.round((done/total)*100):0;
+        document.getElementById('progPct').textContent = pct+'%';
+        document.getElementById('lastSave').textContent = lastSaveTime?('terakhir: '+formatTimeRecent(lastSaveTime)):'belum disimpan';
+      }
+
+      function render(){
+        ['todo','doing','done'].forEach(col=>{
+          const container = document.getElementById('cards-'+col);
+          container.innerHTML = '';
+          tasks.filter(t=>t.col===col).forEach(t=>{
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.innerHTML = `<div><strong>${escapeHtml(t.title)}</strong> <span style="float:right;color:#93c5fd">${escapeHtml(t.cat||'')}</span></div>`+
+                           `<div class="meta">⏱ ${formatTimeRecent(t.modified)} &nbsp; <button data-id="${t.id}" data-action="left">◀</button> <button data-id="${t.id}" data-action="right">▶</button> <button data-id="${t.id}" data-action="del">🗑</button></div>`;
+            container.appendChild(el);
+          });
+        });
+        updateHeaderStats();
+      }
+
+      function escapeHtml(s){
+        if(!s) return '';
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      function addTask(title,cat,col){
+        if(!title) return;
+        const t = {id: nextId++, title:title.trim(), cat:cat?cat.trim():'', col:col||'todo', modified: Date.now()};
+        tasks.push(t);
+        render();
+        autoSave();
+      }
+
+      function moveTask(id,dir){
+        const t = tasks.find(x=>x.id==id); if(!t) return;
+        const order = ['todo','doing','done'];
+        let idx = order.indexOf(t.col);
+        if(dir==='right' && idx < order.length-1) idx++;
+        if(dir==='left' && idx > 0) idx--;
+        t.col = order[idx];
+        t.modified = Date.now();
+        render();
+        autoSave();
+      }
+
+      function deleteTask(id){
+        const idx = tasks.findIndex(x=>x.id==id); if(idx<0) return;
+        tasks.splice(idx,1);
+        render();
+        autoSave();
+      }
+
+      // events
+      document.addEventListener('click', function(e){
+        const a = e.target;
+        if(a.dataset && a.dataset.id){
+          const id = Number(a.dataset.id);
+          const action = a.dataset.action;
+          if(action==='left') moveTask(id,'left');
+          if(action==='right') moveTask(id,'right');
+          if(action==='del') deleteTask(id);
+        }
+      });
+
+      document.getElementById('addBtn').addEventListener('click', ()=>{
+        const title = document.getElementById('newTask').value;
+        const cat = document.getElementById('newCat').value;
+        const col = document.getElementById('newCol').value;
+        addTask(title,cat,col);
+        document.getElementById('newTask').value = '';
+        document.getElementById('newCat').value = '';
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', ()=>{
+        if(confirm('Reset ke contoh bawaan?')){
+          tasks = defaultTasks.slice();
+          nextId = tasks.reduce((m,t)=>Math.max(m,t.id),0)+1;
+          save();
+          render();
+        }
+      });
+
+      // initial load
+      load();
+      render();
+
+      // expose for debugging
+      window._kanban = {tasks,save,load,render};
+    })();
+  </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -76,6 +313,7 @@
     color: var(--text2);
   }
   .hstat strong { color: var(--text); font-weight: 600; }
+  .hstat.last-save { font-size: 11px; color: var(--text3); }
 
   /* ── MAIN ── */
   main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
@@ -406,57 +644,86 @@ const catLabel = {
 };
 
 const defaultTasks = [
-  {id:1,title:'Tentukan tanggal dan lokasi acara',cat:'koordinasi',col:'todo'},
-  {id:2,title:'Rapat panitia pertama',cat:'koordinasi',col:'todo'},
-  {id:3,title:'Buat anggaran / RAB keseluruhan',cat:'koordinasi',col:'todo'},
-  {id:4,title:'Tentukan jumlah undangan & tamu',cat:'undangan',col:'todo'},
-  {id:5,title:'Cetak undangan / buat undangan digital',cat:'undangan',col:'todo'},
-  {id:6,title:'Sebar undangan ke warga & tamu luar',cat:'undangan',col:'todo'},
-  {id:7,title:'Pesan tenda & kursi',cat:'perlengkapan',col:'todo'},
-  {id:8,title:'Siapkan sound system & mic',cat:'perlengkapan',col:'todo'},
-  {id:9,title:'Siapkan generator listrik cadangan',cat:'perlengkapan',col:'todo'},
-  {id:10,title:'Pasang panggung / mimbar',cat:'perlengkapan',col:'todo'},
-  {id:11,title:'Susun dekorasi panggung & area utama',cat:'dekorasi',col:'todo'},
-  {id:12,title:'Siapkan kain/banner bertuliskan haul',cat:'dekorasi',col:'todo'},
-  {id:13,title:'Pasang lampu hias & penerangan',cat:'dekorasi',col:'todo'},
-  {id:14,title:'Tentukan menu makanan & minuman',cat:'konsumsi',col:'todo'},
-  {id:15,title:'Hubungi katering / dapur umum',cat:'konsumsi',col:'todo'},
-  {id:16,title:'Belanja bahan makanan utama',cat:'konsumsi',col:'todo'},
-  {id:17,title:'Siapkan konsumsi panitia H-1 dan hari H',cat:'konsumsi',col:'todo'},
-  {id:18,title:'Siapkan minuman sambutan tamu',cat:'konsumsi',col:'todo'},
-  {id:19,title:'Undang kyai / ustadz pembaca tahlil',cat:'acara',col:'todo'},
-  {id:20,title:'Tentukan susunan acara (rundown)',cat:'acara',col:'todo'},
-  {id:21,title:'Siapkan MC dan pembawa acara',cat:'acara',col:'todo'},
-  {id:22,title:'Siapkan pembaca Al-Quran & sholawat',cat:'acara',col:'todo'},
-  {id:23,title:'Koordinasi parkir kendaraan tamu',cat:'koordinasi',col:'todo'},
-  {id:24,title:'Siapkan tim kebersihan & pengelolaan sampah',cat:'koordinasi',col:'todo'},
-  {id:25,title:'Dokumentasi foto & video acara',cat:'acara',col:'todo'},
-  {id:26,title:'Siapkan buku tamu & penerima tamu',cat:'koordinasi',col:'todo'},
-  {id:27,title:'Beres-beres & evaluasi pasca acara',cat:'koordinasi',col:'todo'},
+  {id:1,title:'Tentukan tanggal dan lokasi acara',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:2,title:'Rapat panitia pertama',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:3,title:'Buat anggaran / RAB keseluruhan',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:4,title:'Tentukan jumlah undangan & tamu',cat:'undangan',col:'todo',modified:Date.now()},
+  {id:5,title:'Cetak undangan / buat undangan digital',cat:'undangan',col:'todo',modified:Date.now()},
+  {id:6,title:'Sebar undangan ke warga & tamu luar',cat:'undangan',col:'todo',modified:Date.now()},
+  {id:7,title:'Pesan tenda & kursi',cat:'perlengkapan',col:'todo',modified:Date.now()},
+  {id:8,title:'Siapkan sound system & mic',cat:'perlengkapan',col:'todo',modified:Date.now()},
+  {id:9,title:'Siapkan generator listrik cadangan',cat:'perlengkapan',col:'todo',modified:Date.now()},
+  {id:10,title:'Pasang panggung / mimbar',cat:'perlengkapan',col:'todo',modified:Date.now()},
+  {id:11,title:'Susun dekorasi panggung & area utama',cat:'dekorasi',col:'todo',modified:Date.now()},
+  {id:12,title:'Siapkan kain/banner bertuliskan haul',cat:'dekorasi',col:'todo',modified:Date.now()},
+  {id:13,title:'Pasang lampu hias & penerangan',cat:'dekorasi',col:'todo',modified:Date.now()},
+  {id:14,title:'Tentukan menu makanan & minuman',cat:'konsumsi',col:'todo',modified:Date.now()},
+  {id:15,title:'Hubungi katering / dapur umum',cat:'konsumsi',col:'todo',modified:Date.now()},
+  {id:16,title:'Belanja bahan makanan utama',cat:'konsumsi',col:'todo',modified:Date.now()},
+  {id:17,title:'Siapkan konsumsi panitia H-1 dan hari H',cat:'konsumsi',col:'todo',modified:Date.now()},
+  {id:18,title:'Siapkan minuman sambutan tamu',cat:'konsumsi',col:'todo',modified:Date.now()},
+  {id:19,title:'Undang kyai / ustadz pembaca tahlil',cat:'acara',col:'todo',modified:Date.now()},
+  {id:20,title:'Tentukan susunan acara (rundown)',cat:'acara',col:'todo',modified:Date.now()},
+  {id:21,title:'Siapkan MC dan pembawa acara',cat:'acara',col:'todo',modified:Date.now()},
+  {id:22,title:'Siapkan pembaca Al-Quran & sholawat',cat:'acara',col:'todo',modified:Date.now()},
+  {id:23,title:'Koordinasi parkir kendaraan tamu',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:24,title:'Siapkan tim kebersihan & pengelolaan sampah',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:25,title:'Dokumentasi foto & video acara',cat:'acara',col:'todo',modified:Date.now()},
+  {id:26,title:'Siapkan buku tamu & penerima tamu',cat:'koordinasi',col:'todo',modified:Date.now()},
+  {id:27,title:'Beres-beres & evaluasi pasca acara',cat:'koordinasi',col:'todo',modified:Date.now()},
 ];
 
 let tasks = [];
 let nextId = 100;
 let activeFilter = 'semua';
+let lastSaveTime = Date.now();
+let autoSaveDelay = null;
+
+function formatTimeRecent(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return 'baru saja';
+  if (minutes < 60) return `${minutes}m lalu`;
+  if (hours < 24) return `${hours}h lalu`;
+  if (days < 7) return `${days}h lalu`;
+  
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('id-ID', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+}
 
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { const d = JSON.parse(raw); tasks = d.tasks; nextId = d.nextId || 100; }
+    if (raw) { const d = JSON.parse(raw); tasks = d.tasks; nextId = d.nextId || 100; lastSaveTime = d.lastSaveTime || Date.now(); }
     else tasks = defaultTasks.map(t => ({...t}));
   } catch(e) { tasks = defaultTasks.map(t => ({...t})); }
 }
 
 function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({tasks, nextId})); } catch(e){}
-  showToast('Tersimpan!');
+  try { 
+    lastSaveTime = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({tasks, nextId, lastSaveTime})); 
+  } catch(e){}
+  showToast(`💾 Tersimpan ${formatTimeRecent(lastSaveTime)}`);
+}
+
+function autoSave() {
+  clearTimeout(autoSaveDelay);
+  autoSaveDelay = setTimeout(() => {
+    save();
+    updateHeaderStats();
+  }, 300);
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 function esc(s) {
@@ -468,6 +735,23 @@ function setFilter(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
+}
+
+function updateHeaderStats() {
+  const total = tasks.length;
+  const done = tasks.filter(t => t.col === 'done').length;
+  const doing = tasks.filter(t => t.col === 'doing').length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('headerStats').innerHTML = `
+    <div class="hstat"><strong>${total}</strong> Total</div>
+    <div class="hstat"><strong>${doing}</strong> Berjalan</div>
+    <div class="hstat"><strong>${done}</strong> Selesai</div>
+    <div class="hstat"><strong>${pct}%</strong> Progress</div>
+    <div class="hstat last-save">💾 ${formatTimeRecent(lastSaveTime)}</div>
+  `;
 }
 
 function render() {
@@ -489,6 +773,7 @@ function render() {
         <button class="del-btn" onclick="deleteTask(${t.id})" title="Hapus">✕</button>
         <div class="card-cat cat-${t.cat}">${catLabel[t.cat] || t.cat}</div>
         <div class="card-title">${esc(t.title)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px;margin-top:-2px;">${formatTimeRecent(t.modified || Date.now())}</div>
         <div class="card-footer">
           ${col !== 'todo' ? `<button class="card-btn" onclick="moveTask(${t.id},'${prev(col)}')">← Mundur</button>` : ''}
           ${col !== 'done' ? `<button class="card-btn" onclick="moveTask(${t.id},'${next(col)}')">${col==='todo'?'Mulai →':'Selesai ✓'}</button>` : ''}
@@ -497,6 +782,8 @@ function render() {
       </div>
     `).join('');
   });
+  
+  updateHeaderStats();
 
   const total = tasks.length;
   const done = tasks.filter(t => t.col === 'done').length;
