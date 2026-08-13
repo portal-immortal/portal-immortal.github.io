@@ -3,7 +3,6 @@
 
 # Ignore source folders that are project-specific and not meant for Jekyll
 **/src/**
-**/meeting-link-extractor/**
 
 # Ignore other build/source dirs that may confuse Jekyll
 **/pptq/**
@@ -11,4 +10,3 @@
 **/claude/**
 **/claude-history/**
 **/istwib/**
-**/bpn-report-studio/**
