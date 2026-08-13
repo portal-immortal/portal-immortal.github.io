@@ -10,7 +10,16 @@
 (function () {
   'use strict';
 
-  const { getSettings, saveSettings, getTheme, setTheme, estimateStorageUsageBytes, clearAllAppData } = window.BPN.services.storage;
+  const {
+    getSettings,
+    saveSettings,
+    getTheme,
+    setTheme,
+    estimateStorageUsageBytes,
+    clearAllAppData,
+    exportDataFile,
+    importDataFile,
+  } = window.BPN.services.storage;
   const { PLANS, getActivePlanId } = window.BPN.config.appConfig;
   const { confirmModal } = window.BPN.components.modal;
   const { showToast } = window.BPN.components.toast;
@@ -92,9 +101,18 @@
 
           <div class="card bpn-card border-danger-subtle">
             <div class="card-header bpn-card-header text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Zona Berbahaya</div>
-            <div class="card-body">
-              <p class="text-secondary small mb-1">Penyimpanan lokal saat ini: <strong>${(bytes / 1024).toFixed(1)} KB</strong></p>
-              <p class="text-secondary small">Menghapus semua data akan menghapus seluruh laporan, pengaturan, dan riwayat secara permanen dari perangkat ini.</p>
+            <div class="card-body d-grid gap-3">
+              <div>
+                <p class="text-secondary small mb-1">Penyimpanan file saat ini: <strong>${(bytes / 1024).toFixed(1)} KB</strong></p>
+                <p class="text-secondary small">Semua data disimpan dalam berkas JSON yang dipilih secara manual, bukan di localStorage browser.</p>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary" id="btn-export-data-file"><i class="bi bi-download me-1"></i>Ekspor Data ke File</button>
+                <button class="btn btn-outline-secondary" id="btn-import-data-file"><i class="bi bi-upload me-1"></i>Impor Data dari File</button>
+                <input type="file" accept=".json,application/json" id="data-file-input" class="d-none" />
+              </div>
+
               <button class="btn btn-outline-danger" id="btn-clear-data"><i class="bi bi-trash me-1"></i>Hapus Semua Data</button>
             </div>
           </div>
@@ -116,6 +134,31 @@
         defaultCurrency: container.querySelector('#defaultCurrency').value.trim().toUpperCase() || 'IDR',
       });
       showToast('Pengaturan disimpan.', 'success');
+    });
+
+    const fileInput = container.querySelector('#data-file-input');
+    container.querySelector('#btn-import-data-file').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        await importDataFile(file);
+        showToast('Data berhasil dipulihkan dari file JSON.', 'success');
+        render(container);
+      } catch (err) {
+        showToast(err.message || 'Gagal membaca data dari file.', 'danger');
+      } finally {
+        fileInput.value = '';
+      }
+    });
+
+    container.querySelector('#btn-export-data-file').addEventListener('click', async () => {
+      try {
+        await exportDataFile('bpn-report-studio-data.json');
+        showToast('Data berhasil diekspor ke file JSON.', 'success');
+      } catch (err) {
+        showToast(err.message || 'Gagal mengekspor data ke file.', 'danger');
+      }
     });
 
     container.querySelector('#btn-clear-data').addEventListener('click', async () => {

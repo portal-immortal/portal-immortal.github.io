@@ -74,7 +74,7 @@
     const textEl = document.getElementById('storage-warning-text');
     if (!banner || !textEl) return;
     textEl.textContent =
-      'Penyimpanan lokal peramban tidak dapat diakses saat ini (sering terjadi jika pengaturan privasi memblokir data situs untuk berkas file://). Laporan yang Anda buat hanya bertahan selama tab ini terbuka dan akan hilang setelah dimuat ulang. Untuk penyimpanan permanen, jalankan lewat server lokal (lihat README) atau periksa pengaturan "Block third-party cookies and site data" di peramban Anda.';
+      'Browser ini tidak mendukung API pemilihan berkas untuk penyimpanan data JSON. Laporan hanya akan bertahan selama tab ini terbuka dan akan hilang setelah dimuat ulang. Untuk penyimpanan permanen, gunakan browser yang mendukung File System Access API atau pilih berkas data secara manual.';
     banner.classList.remove('d-none');
   }
 

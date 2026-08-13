@@ -1,11 +1,9 @@
 /**
  * storage.js
  * ---------------------------------------------------------------------------
- * All persistence goes through this file. Version 1 stores everything in
- * the browser's localStorage. Nothing else in the app calls
- * `localStorage` directly — every read/write goes through the functions
- * below, so persistence can move to a remote API later without touching
- * views, services, or components.
+ * All persistence goes through this file. Data is kept in a user-selected
+ * JSON file rather than browser localStorage, so uploads and report data are
+ * not silently saved into the browser's built-in storage.
  *
  * SAAS READINESS NOTE:
  * `StorageProvider` documents the interface any future provider must
@@ -20,6 +18,13 @@
 
   const { STORAGE_KEYS } = window.BPN.config.appConfig;
 
+  const FILE_STORAGE_DEFAULTS = Object.freeze({
+    [STORAGE_KEYS.reports]: '[]',
+    [STORAGE_KEYS.settings]: '{}',
+    [STORAGE_KEYS.theme]: '"system"',
+    [STORAGE_KEYS.recent]: '[]',
+  });
+
   /**
    * Interface every storage provider must implement.
    * @interface StorageProvider
@@ -28,42 +33,108 @@
    * @method removeItem (key: string) => Promise<void>
    */
 
-  /** localStorage-backed implementation of StorageProvider. */
-  class LocalStorageProvider {
-    async getItem(key) {
-      try {
-        return window.localStorage.getItem(key);
-      } catch (err) {
-        console.error('[storage] getItem failed', key, err);
-        return null;
+  class FileStorageProvider {
+    constructor() {
+      this._cache = null;
+      this._fileHandle = null;
+    }
+
+    async ensureFileHandle(mode = 'read') {
+      if (this._fileHandle) return this._fileHandle;
+
+      const pickerName = mode === 'read' ? 'showOpenFilePicker' : 'showSaveFilePicker';
+      const picker = window[pickerName];
+      if (typeof picker !== 'function') return null;
+
+      if (mode === 'read') {
+        const [handle] = await picker.call(window, {
+          types: [
+            {
+              description: 'JSON Data File',
+              accept: {
+                'application/json': ['.json'],
+              },
+            },
+          ],
+          multiple: false,
+        });
+        this._fileHandle = handle;
+        return handle;
       }
+
+      this._fileHandle = await picker.call(window, {
+        suggestedName: 'bpn-report-studio-data.json',
+        types: [
+          {
+            description: 'JSON Data File',
+            accept: {
+              'application/json': ['.json'],
+            },
+          },
+        ],
+      });
+      return this._fileHandle;
+    }
+
+    async readFileData() {
+      const handle = await this.ensureFileHandle('read').catch(() => null);
+      if (!handle) return { ...FILE_STORAGE_DEFAULTS };
+
+      const file = await handle.getFile().catch(() => null);
+      if (!file || file.size === 0) return { ...FILE_STORAGE_DEFAULTS };
+
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+          return { ...FILE_STORAGE_DEFAULTS };
+        }
+        return { ...FILE_STORAGE_DEFAULTS, ...parsed };
+      } catch (err) {
+        console.warn('[storage] failed to parse data file, resetting defaults', err);
+        return { ...FILE_STORAGE_DEFAULTS };
+      }
+    }
+
+    async ensureCache() {
+      if (this._cache) return this._cache;
+      this._cache = await this.readFileData();
+      return this._cache;
+    }
+
+    async flush() {
+      const handle = await this.ensureFileHandle('write').catch(() => null);
+      if (!handle) return false;
+
+      const writable = await handle.createWritable().catch(() => null);
+      if (!writable) return false;
+
+      await writable.write(JSON.stringify(this._cache, null, 2));
+      await writable.close();
+      return true;
+    }
+
+    async getItem(key) {
+      const cache = await this.ensureCache();
+      return Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : null;
     }
 
     async setItem(key, value) {
-      try {
-        window.localStorage.setItem(key, value);
-      } catch (err) {
-        console.error('[storage] setItem failed', key, err);
-        throw new Error('Penyimpanan lokal penuh atau tidak tersedia.');
-      }
+      const cache = await this.ensureCache();
+      cache[key] = value;
+      await this.flush();
     }
 
     async removeItem(key) {
-      try {
-        window.localStorage.removeItem(key);
-      } catch (err) {
-        console.error('[storage] removeItem failed', key, err);
-      }
+      const cache = await this.ensureCache();
+      delete cache[key];
+      await this.flush();
     }
   }
 
   /**
-   * In-memory fallback used only when localStorage itself is unreachable
-   * (some browser privacy settings — e.g. Chrome's "Block third-party
-   * cookies and site data" — throw a SecurityError for localStorage on
-   * file:// pages). Keeps the app fully usable for the current tab session
-   * instead of silently discarding every save; see `isPersistent` below,
-   * which the UI uses to warn the user that nothing will survive a reload.
+   * In-memory fallback used only when the browser cannot expose a file picker.
+   * Kept as a last resort so the app remains usable in the current tab.
    */
   class InMemoryStorageProvider {
     constructor() {
@@ -80,31 +151,23 @@
     }
   }
 
-  /** @returns {boolean} whether window.localStorage is actually readable/writable right now */
-  function detectLocalStorageAvailable() {
-    try {
-      const testKey = '__bpn_storage_probe__';
-      window.localStorage.setItem(testKey, '1');
-      window.localStorage.removeItem(testKey);
-      return true;
-    } catch {
-      return false;
-    }
+  /** @returns {boolean} whether the browser exposes a file-picker API for JSON storage */
+  function detectFileStorageAvailable() {
+    return typeof window.showOpenFilePicker === 'function' || typeof window.showSaveFilePicker === 'function';
   }
 
   /**
-   * True if data will actually persist across reloads. False means the
-   * app is silently running on an in-memory fallback for this tab only —
-   * views should surface this (see app.js's storage-warning banner).
+   * True if data will actually persist across reloads through the saved JSON file.
+   * False means the app is running on an in-memory fallback for this tab only.
    */
-  const isPersistent = detectLocalStorageAvailable();
+  const isPersistent = detectFileStorageAvailable();
 
   /**
-   * Swap this single instance to move the whole app to a different backend
-   * (e.g. `new CloudStorageProvider(apiClient)`), as long as it implements
-   * the same async getItem/setItem/removeItem interface.
+   * Swap this single instance to move the whole app to a different backend,
+   * as long as it implements the same async getItem/setItem/removeItem
+   * interface.
    */
-  const activeProvider = isPersistent ? new LocalStorageProvider() : new InMemoryStorageProvider();
+  const activeProvider = isPersistent ? new FileStorageProvider() : new InMemoryStorageProvider();
 
   async function readJson(key, fallback) {
     const raw = await activeProvider.getItem(key);
@@ -212,12 +275,13 @@
 
   /** @returns {Promise<'light'|'dark'|'system'>} */
   async function getTheme() {
-    return (await activeProvider.getItem(STORAGE_KEYS.theme)) || 'system';
+    const stored = await activeProvider.getItem(STORAGE_KEYS.theme);
+    return stored ? JSON.parse(stored) : 'system';
   }
 
   /** @param {'light'|'dark'|'system'} theme */
   async function setTheme(theme) {
-    await activeProvider.setItem(STORAGE_KEYS.theme, theme);
+    await activeProvider.setItem(STORAGE_KEYS.theme, JSON.stringify(theme));
   }
 
   /* ------------------------------ Recent -------------------------------------- */
@@ -239,7 +303,7 @@
   /* ------------------------------ Utilities ----------------------------------- */
 
   /**
-   * Rough estimate of localStorage usage in bytes for app-owned keys.
+   * Rough estimate of JSON file data size in bytes for app-owned keys.
    * @returns {Promise<number>}
    */
   async function estimateStorageUsageBytes() {
@@ -257,6 +321,74 @@
   async function clearAllAppData() {
     for (const key of Object.values(STORAGE_KEYS)) {
       await activeProvider.removeItem(key);
+    }
+  }
+
+  /**
+   * Exports all app-owned data to a JSON file.
+   * @param {string} fileName
+   * @returns {Promise<void>}
+   */
+  async function exportDataFile(fileName = 'bpn-report-studio-data.json') {
+    const payload = {};
+    for (const key of Object.values(STORAGE_KEYS)) {
+      const raw = await activeProvider.getItem(key);
+      if (raw !== null && raw !== undefined) {
+        try {
+          payload[key] = JSON.parse(raw);
+        } catch {
+          payload[key] = raw;
+        }
+      }
+    }
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+
+    if (typeof window.showSaveFilePicker === 'function') {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: fileName,
+        types: [{ description: 'JSON Data File', accept: { 'application/json': ['.json'] } }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Imports all app-owned data from a JSON file.
+   * @param {File} file
+   * @returns {Promise<void>}
+   */
+  async function importDataFile(file) {
+    if (!file) throw new Error('Berkas data tidak ditemukan.');
+
+    const text = await file.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new Error('Format file tidak valid. Harap pilih file JSON yang benar.');
+    }
+
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Format JSON tidak sesuai. File harus berisi objek data aplikasi.');
+    }
+
+    for (const key of Object.values(STORAGE_KEYS)) {
+      if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+        await activeProvider.setItem(key, JSON.stringify(parsed[key]));
+      }
     }
   }
 
@@ -278,5 +410,7 @@
     pushRecent,
     estimateStorageUsageBytes,
     clearAllAppData,
+    exportDataFile,
+    importDataFile,
   };
 })();
