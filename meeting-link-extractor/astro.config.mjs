@@ -1,8 +1,8 @@
 import { defineConfig } from "astro/config";
 
-// Meeting Link Extractor is a fully static, client-side-only utility.
-// No SSR, no server adapter, no backend — everything runs in the browser.
 export default defineConfig({
+  site: "https://portal-immortal.github.io",
+  base: "/meeting-link-extractor",
   output: "static",
   compressHTML: true,
 });
