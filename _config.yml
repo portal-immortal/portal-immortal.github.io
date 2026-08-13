@@ -10,7 +10,7 @@ exclude:
   - node_modules
   - src
   - public
-  - **/*.astro
+  - "**/*.astro"
 
 # Prevent using collections or other special processing
 collections: {}
