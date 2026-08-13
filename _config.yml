@@ -1,0 +1,21 @@
+# Minimal Jekyll config to exclude non-Jekyll project folders
+exclude:
+  - meeting-link-extractor
+  - pptq
+  - kanban
+  - claude
+  - claude-history
+  - istwib
+  - bpn-report-studio
+  - node_modules
+  - src
+  - public
+  - **/*.astro
+
+# Prevent using collections or other special processing
+collections: {}
+
+# Keep safe defaults
+safe: true
+future: false
+verbose: false
