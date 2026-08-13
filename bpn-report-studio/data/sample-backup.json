@@ -1,0 +1,86 @@
+{
+  "exportedAt": "2026-08-12T00:51:15.876Z",
+  "source": "BPN Report Studio",
+  "reports": [
+    {
+      "id": "865b8d9d-066e-43d5-ae0a-1716bfe11f6a",
+      "reportType": "PAJAK",
+      "status": "final",
+      "payment": {
+        "bankname": "Bank Mandiri",
+        "localtransactiondatetime": "2026-08-01T09:15",
+        "settlementdate": "2026-08-01",
+        "branchcode": "023100",
+        "retrievalreferencenumber": "012345678901",
+        "ntpn": "A1B2C3D4E5F6G7H8",
+        "systemtraceauditnumber": "000123"
+      },
+      "deposit": {
+        "billingnumber": "021234567890123",
+        "npwp": "0123456789012345",
+        "namawp": "PT Nusantara Makmur",
+        "alamatwp": "Jl. Sudirman No. 45, Jakarta",
+        "jumlahdetail": "1",
+        "transactionamount": "2500000",
+        "currencycode": "IDR",
+        "terbilang": "Dua juta lima ratus ribu Rupiah"
+      },
+      "createdAt": "2026-08-12T00:51:15.870Z",
+      "updatedAt": "2026-08-12T00:51:15.870Z"
+    },
+    {
+      "id": "48f878fa-8bf3-4653-9e2a-45b9ef19133c",
+      "reportType": "BEACUKAI",
+      "status": "final",
+      "payment": {
+        "bankname": "Bank Negara Indonesia",
+        "localtransactiondatetime": "2026-08-02T13:40",
+        "settlementdate": "2026-08-02",
+        "branchcode": "051200",
+        "retrievalreferencenumber": "998877665544",
+        "ntpn": "B2C3D4E5F6G7H8A1",
+        "systemtraceauditnumber": "000456"
+      },
+      "deposit": {
+        "billingnumber": "521234567890456",
+        "idwajibbayar": "9876543210",
+        "namawp": "PT Cipta Bahari Impor",
+        "jenisdokumen": "01",
+        "nomordokumen": "000789",
+        "tanggaldokumen": "2026-07-28",
+        "kodekpbc": "040100",
+        "transactionamount": "15750000",
+        "currencycode": "IDR",
+        "terbilang": "Lima belas juta tujuh ratus lima puluh ribu Rupiah"
+      },
+      "createdAt": "2026-08-12T00:51:15.872Z",
+      "updatedAt": "2026-08-12T00:51:15.872Z"
+    },
+    {
+      "id": "356487a8-6d0b-494d-aae1-38e068ccbab8",
+      "reportType": "PNBP",
+      "status": "final",
+      "payment": {
+        "bankname": "Bank Rakyat Indonesia",
+        "localtransactiondatetime": "2026-08-03T16:05",
+        "settlementdate": "2026-08-03",
+        "branchcode": "077700",
+        "retrievalreferencenumber": "112233445566",
+        "ntpn": "C3D4E5F6G7H8A1B2",
+        "systemtraceauditnumber": "000789"
+      },
+      "deposit": {
+        "billingnumber": "821234567890789",
+        "namawp": "PT Karya Sentosa",
+        "lembaga": "022",
+        "uniteselon": "05",
+        "kodesatker": "654321",
+        "transactionamount": "5000000",
+        "currencycode": "IDR",
+        "terbilang": "Lima juta Rupiah"
+      },
+      "createdAt": "2026-08-12T00:51:15.872Z",
+      "updatedAt": "2026-08-12T00:51:15.872Z"
+    }
+  ]
+}

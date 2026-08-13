@@ -1,0 +1,508 @@
+/**
+ * styles.css
+ * ---------------------------------------------------------------------------
+ * Design tokens
+ *   Color   — Navy (#0F2A4A) + gold (#B8862B) treasury palette on warm
+ *             paper (#F6F5F1), evoking an official ledger rather than a
+ *             generic SaaS gradient. A muted stamp-red (#A23B2E) is
+ *             reserved for destructive/required states only.
+ *   Type    — Source Serif 4 for page titles and receipt headings (the
+ *             authority of a letterhead); Inter for UI and body copy;
+ *             IBM Plex Mono for every code-like value (billing codes,
+ *             NTPN/NTB/STAN, NPWP) so numbers line up like a real ledger.
+ *   Layout  — fixed navy rail + paper-toned content, collapsing to an
+ *             offcanvas below the lg breakpoint.
+ *   Signature — the "perforated receipt stub" treatment on the receipt
+ *             preview: a torn-ticket edge at top and bottom, used nowhere
+ *             else, so it stays a single memorable moment.
+ * ---------------------------------------------------------------------------
+ */
+
+:root {
+  --bpn-navy: #0f2a4a;
+  --bpn-navy-dark: #081826;
+  --bpn-navy-tint: #eef2f7;
+  --bpn-gold: #b8862b;
+  --bpn-gold-light: #d9ae5f;
+  --bpn-teal: #1d6e63;
+  --bpn-red: #a23b2e;
+  --bpn-paper: #f6f5f1;
+  --bpn-paper-dark: #12181f;
+  --bpn-ink: #1c2530;
+  --bpn-hairline: #e1ddd2;
+
+  --bpn-page-bg: var(--bpn-paper);
+  --bpn-surface: #ffffff;
+  --bpn-border: var(--bpn-hairline);
+  --bpn-text: var(--bpn-ink);
+  --bpn-text-muted: #6b7280;
+
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+[data-bs-theme='dark'] {
+  --bpn-page-bg: #0b0f14;
+  --bpn-surface: #161d26;
+  --bpn-border: #262f3a;
+  --bpn-text: #e7e9ec;
+  --bpn-text-muted: #97a1ad;
+  --bpn-navy-tint: #16202e;
+}
+
+/* ------------------------------- Base -------------------------------- */
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bpn-page-bg);
+  color: var(--bpn-text);
+}
+
+h1, h2, h3, h4, h5, h6, .bpn-page-title, .bpn-brand span, .bpn-receipt-title-main {
+  font-family: var(--font-display);
+}
+
+.bpn-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+a { color: var(--bpn-navy); }
+[data-bs-theme='dark'] a { color: var(--bpn-gold-light); }
+
+/* ------------------------------ Shell -------------------------------- */
+
+.bpn-app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.bpn-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ----------------------------- Sidebar -------------------------------- */
+
+.bpn-sidebar {
+  --bs-offcanvas-width: 260px;
+  background: linear-gradient(180deg, var(--bpn-navy) 0%, var(--bpn-navy-dark) 100%);
+  color: #f2f4f7;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (min-width: 992px) {
+  .bpn-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 260px;
+    flex-shrink: 0;
+  }
+}
+
+.bpn-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.35rem 1.25rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.bpn-brand i { color: var(--bpn-gold-light); font-size: 1.2rem; }
+
+.bpn-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.bpn-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.bpn-nav-link i { width: 1.1rem; text-align: center; opacity: 0.85; }
+
+.bpn-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.bpn-nav-link.active {
+  background: rgba(217, 174, 95, 0.16);
+  color: #fff;
+  box-shadow: inset 3px 0 0 var(--bpn-gold-light);
+}
+
+.bpn-sidebar-footer {
+  margin-top: auto;
+  padding: 1rem 1.25rem 1.4rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.bpn-ledger-rule {
+  height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 6px, transparent 6px 12px);
+  margin-bottom: 0.75rem;
+}
+
+/* ----------------------------- Topbar --------------------------------- */
+
+.bpn-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  background: var(--bpn-surface);
+  border-bottom: 1px solid var(--bpn-border);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.bpn-page-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--bpn-text);
+}
+
+.bpn-icon-btn {
+  background: transparent;
+  border: 1px solid var(--bpn-border);
+  color: var(--bpn-text);
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bpn-icon-btn:hover { background: var(--bpn-navy-tint); }
+
+/* ----------------------------- Content -------------------------------- */
+
+.bpn-content {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.bpn-footer {
+  padding: 1rem 1.5rem 1.75rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--bpn-text-muted);
+}
+
+/* ------------------------------- Cards --------------------------------- */
+
+.bpn-card {
+  background: var(--bpn-surface);
+  border: 1px solid var(--bpn-border);
+  border-radius: 12px;
+}
+
+.bpn-card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--bpn-border);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.85rem 1.1rem;
+}
+
+/* ------------------------------ Buttons -------------------------------- */
+
+.bpn-btn-primary {
+  background: var(--bpn-navy);
+  border-color: var(--bpn-navy);
+  color: #fff;
+}
+
+.bpn-btn-primary:hover, .bpn-btn-primary:focus {
+  background: var(--bpn-navy-dark);
+  border-color: var(--bpn-navy-dark);
+  color: #fff;
+}
+
+/* ------------------------------- Badges --------------------------------- */
+
+.bpn-badge-pajak     { background: var(--bpn-navy); color: #fff; }
+.bpn-badge-beacukai  { background: var(--bpn-teal); color: #fff; }
+.bpn-badge-pnbp      { background: var(--bpn-gold); color: #2b1f06; }
+.bpn-badge-neutral   { background: var(--bpn-navy); color: #fff; }
+
+/* -------------------------------- Table ---------------------------------- */
+
+.bpn-table thead th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bpn-text-muted);
+  border-bottom-width: 1px;
+  font-weight: 600;
+}
+
+.bpn-table td, .bpn-table th {
+  border-color: var(--bpn-border);
+  padding: 0.75rem 1rem;
+}
+
+/* ----------------------------- Empty state -------------------------------- */
+
+.bpn-empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--bpn-text-muted);
+}
+
+.bpn-empty-state i { font-size: 2.2rem; opacity: 0.5; margin-bottom: 0.5rem; display: inline-block; }
+
+/* ------------------------------- Dropzone ---------------------------------- */
+
+.bpn-dropzone {
+  border: 1.5px dashed var(--bpn-border);
+  border-radius: 10px;
+  padding: 1.75rem 1rem;
+  text-align: center;
+  color: var(--bpn-text-muted);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.bpn-dropzone-active {
+  border-color: var(--bpn-gold);
+  background: rgba(184, 134, 43, 0.06);
+}
+
+/* ------------------------------ Plan rows ---------------------------------- */
+
+.bpn-plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--bpn-border);
+  border-radius: 10px;
+}
+
+.bpn-plan-row-active {
+  border-color: var(--bpn-gold);
+  background: rgba(184, 134, 43, 0.06);
+}
+
+/* -------------------------- Sticky preview panel ---------------------------- */
+
+.bpn-sticky-preview {
+  position: sticky;
+  top: 5.5rem;
+}
+
+/* =============================================================
+   Signature element — the perforated receipt stub
+   Used only for the receipt preview, so it stays memorable.
+   ============================================================= */
+
+.bpn-receipt {
+  position: relative;
+  background: var(--bpn-surface);
+  border: 1px solid var(--bpn-border);
+  border-radius: 4px;
+  padding: 2rem 1.6rem 1.4rem;
+  box-shadow: 0 1px 3px rgba(15, 42, 74, 0.06);
+}
+
+.bpn-receipt::before,
+.bpn-receipt::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 13px;
+  background-image: radial-gradient(circle at 10px 7px, var(--bpn-page-bg) 5.5px, transparent 6px);
+  background-size: 20px 13px;
+  background-repeat: repeat-x;
+}
+
+.bpn-receipt::before { top: -1px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+.bpn-receipt::after { bottom: -1px; transform: scaleY(-1); }
+
+.bpn-receipt-header {
+  border-bottom: 2px double var(--bpn-gold);
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bpn-receipt-bank-corner,
+.bpn-receipt-ministry-corner {
+  flex: 0 0 auto;
+  max-width: 30%;
+  font-size: 0.78rem;
+  color: var(--bpn-text-muted);
+  padding-top: 0.15rem;
+}
+
+.bpn-receipt-ministry-corner { text-align: right; }
+
+.bpn-receipt-title-center {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.bpn-receipt-title-main {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--bpn-navy);
+}
+
+[data-bs-theme='dark'] .bpn-receipt-title-main { color: var(--bpn-gold-light); }
+
+.bpn-receipt-subtitle-center {
+  font-size: 0.82rem;
+  color: var(--bpn-text-muted);
+  margin-top: 0.1rem;
+}
+
+.bpn-receipt-section { margin-bottom: 1.25rem; }
+
+.bpn-receipt-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bpn-gold);
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.bpn-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--bpn-border);
+  font-size: 0.88rem;
+}
+
+.bpn-receipt-row:last-child { border-bottom: none; }
+
+.bpn-receipt-label { color: var(--bpn-text-muted); }
+.bpn-receipt-value { font-weight: 500; text-align: right; }
+
+/* Two independent label:value cells sharing one row — used for the Data
+   Pembayaran 2-column grid and the Jumlah Setoran + Mata Uang pairing. */
+.bpn-receipt-row-paired {
+  gap: 1.5rem;
+}
+
+.bpn-receipt-pair-cell {
+  flex: 1 1 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.bpn-receipt-pair-cell .bpn-receipt-value { white-space: nowrap; }
+
+.bpn-receipt-official-disclaimer {
+  font-size: 0.68rem;
+  color: var(--bpn-text-muted);
+  border-top: 1px solid var(--bpn-border);
+  padding-top: 0.7rem;
+  margin-top: 0.25rem;
+}
+
+.bpn-receipt-official-disclaimer p { margin: 0 0 0.15rem; }
+
+.bpn-receipt-printdate {
+  font-size: 0.72rem;
+  color: var(--bpn-text-muted);
+  margin-top: 0.5rem;
+}
+
+.bpn-receipt-disclaimer {
+  font-size: 0.68rem;
+  color: var(--bpn-text-muted);
+  opacity: 0.85;
+  margin: 0.4rem 0 0;
+  font-style: italic;
+}
+
+/* --------------------------- Dashboard filter cards --------------------------- */
+
+.bpn-stat-card-filter {
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.bpn-stat-card-filter:hover {
+  border-color: var(--bpn-gold);
+}
+
+.bpn-stat-card-filter:active {
+  transform: scale(0.99);
+}
+
+.bpn-stat-card-filter:focus-visible {
+  outline: 2px solid var(--bpn-gold);
+  outline-offset: 2px;
+}
+
+.bpn-stat-card-active {
+  border-color: var(--bpn-gold);
+  box-shadow: 0 0 0 1px var(--bpn-gold);
+}
+
+.bpn-stat-card-hint {
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+
+/* ------------------------------ Utilities ----------------------------------- */
+
+.bpn-field .invalid-feedback { display: block; min-height: 1.1em; }
+
+/* Hide the native up/down stepper on number inputs (Jumlah Setoran, Jumlah
+   Detail) — the app already validates range/format, the spinner just adds
+   visual noise for values people type rather than click through. */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+@media (max-width: 991.98px) {
+  .bpn-content { padding: 1.1rem; }
+  .bpn-sticky-preview { position: static; }
+}

@@ -1,0 +1,29 @@
+---
+// Static markup for the input panel. All behaviour is wired up client-side
+// in src/scripts/app.ts, which reads/writes these element ids.
+---
+
+<section class="panel panel--input" aria-labelledby="input-heading">
+  <div class="panel__head">
+    <h2 id="input-heading" class="panel__title">Meeting invitation</h2>
+    <button type="button" id="clear-button" class="btn btn--text" aria-label="Clear the pasted invitation">
+      Clear
+    </button>
+  </div>
+
+  <label for="meeting-input" class="sr-only">Paste your meeting invitation text</label>
+  <textarea
+    id="meeting-input"
+    name="meeting-input"
+    class="input-textarea"
+    placeholder="Paste your Teams, Zoom, Webex, or Google Meet invitation here..."
+    autocomplete="off"
+    autocapitalize="off"
+    spellcheck="false"
+    rows="14"></textarea>
+
+  <p class="panel__hint">
+    Detection runs automatically as you paste.
+    <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to re-run it manually.
+  </p>
+</section>

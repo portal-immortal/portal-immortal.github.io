@@ -1,0 +1,19 @@
+{
+  "name": "meeting-link-extractor",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --experimental-strip-types --test src/lib/meetingLinkExtractor.test.ts"
+  },
+  "dependencies": {
+    "astro": "^7.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}

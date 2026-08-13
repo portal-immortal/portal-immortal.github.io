@@ -1,0 +1,18 @@
+---
+// Static shell for the results panel. The inner markup of #result-content
+// is generated at runtime by renderResults.ts + src/scripts/app.ts, since
+// its shape depends entirely on what the user pastes.
+---
+
+<section class="panel panel--result" aria-labelledby="result-heading" aria-live="polite">
+  <div class="panel__head">
+    <h2 id="result-heading" class="panel__title">Detected link</h2>
+  </div>
+
+  <div id="result-content">
+    <div class="state-message" data-state="empty">
+      <span class="state-message__icon" aria-hidden="true">📋</span>
+      <p>Paste a meeting invitation to get started.</p>
+    </div>
+  </div>
+</section>

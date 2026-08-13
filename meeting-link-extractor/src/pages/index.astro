@@ -1,0 +1,43 @@
+---
+import "../styles/global.css";
+import MeetingInput from "../components/MeetingInput.astro";
+import MeetingResult from "../components/MeetingResult.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Paste a meeting invitation and instantly get the Teams, Zoom, Webex, or Google Meet link — no login, no server, everything stays in your browser." />
+    <title>Meeting Link Extractor</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <span class="app-header__eyebrow">Paste → Detect → Copy</span>
+        <h1 class="app-header__title">Meeting Link Extractor</h1>
+        <p class="app-header__subtitle">Paste your meeting invitation. We'll find the meeting link for you.</p>
+      </header>
+
+      <div class="app-grid">
+        <MeetingInput />
+
+        <div class="app-grid__connector" aria-hidden="true">
+          <div class="app-grid__connector-line">
+            <span class="app-grid__connector-chip">→</span>
+          </div>
+        </div>
+
+        <MeetingResult />
+      </div>
+
+      <footer class="app-footer">
+        <span class="app-footer__lock" aria-hidden="true">🔒</span>Your meeting invitation stays in your browser. Nothing is uploaded.
+      </footer>
+    </main>
+
+    <script src="../scripts/app.ts"></script>
+  </body>
+</html>
