@@ -2,9 +2,6 @@
 exclude:
   - pptq
   - kanban
-  - claude
-  - claude-history
-  - istwib
   - node_modules
   - src
   - public
