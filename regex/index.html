@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Regex Cheat Sheet & Playground — Portal Immortal</title>
+<meta name="description" content="Regex cheat sheet praktis + interactive regex playground untuk Notepad++, SQL, log, config file, dan text processing." />
+<style>
+  :root {
+    --t: 0.2s ease;
+  }
+
+  [data-theme="dark"] {
+    --bg: #14151a;
+    --surface: #1c1e24;
+    --surface2: #232630;
+    --border: rgba(255, 255, 255, 0.09);
+    --text: #dfe3ea;
+    --muted: rgba(223, 227, 234, 0.55);
+    --accent: #5ec9f0;
+    --accent-strong: #8ee0ff;
+    --mark-bg: rgba(94, 201, 240, 0.28);
+    --mark-border: #5ec9f0;
+    --danger: #ff8577;
+    --danger-bg: rgba(255, 111, 97, 0.12);
+    --success: #7bd88f;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  [data-theme="light"] {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface2: #edeff3;
+    --border: rgba(20, 21, 26, 0.1);
+    --text: #1b1d23;
+    --muted: rgba(27, 29, 35, 0.58);
+    --accent: #0a84c4;
+    --accent-strong: #06618f;
+    --mark-bg: rgba(10, 132, 196, 0.16);
+    --mark-border: #0a84c4;
+    --danger: #c0392b;
+    --danger-bg: rgba(192, 57, 43, 0.08);
+    --success: #2e8b57;
+    --shadow: 0 8px 24px rgba(20, 21, 26, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    transition: background-color var(--t), color var(--t);
+  }
+
+  code, pre, textarea, input.mono, .mono {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  a { color: var(--accent); }
+
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 20px 20px 80px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0 6px;
+  }
+
+  .home-link {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color var(--t);
+  }
+
+  .home-link:hover { color: var(--accent); }
+
+  .theme-toggle {
+    font-family: inherit;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: all var(--t);
+  }
+
+  .theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+  .theme-toggle:focus-visible,
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* HEADER */
+  .page-header { padding: 18px 0 8px; }
+
+  .page-header h1 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    margin: 0 0 10px;
+  }
+
+  .page-sub {
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0;
+    font-size: 0.98rem;
+  }
+
+  /* SECTIONS */
+  section { margin-top: 46px; }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .section-title .tag {
+    font-family: inherit;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 9px;
+    opacity: 0.85;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0 0 18px;
+    max-width: 720px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  /* CHEAT TABLE */
+  .table-scroll { overflow-x: auto; border-radius: 14px; }
+
+  table.cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    font-size: 0.92rem;
+  }
+
+  table.cheat-table th,
+  table.cheat-table td {
+    text-align: left;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  table.cheat-table th {
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--surface2);
+  }
+
+  table.cheat-table tr:last-child td { border-bottom: none; }
+  table.cheat-table tbody tr:hover { background: var(--surface2); }
+
+  table.cheat-table code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 6px;
+    color: var(--accent-strong);
+  }
+
+  /* NOTEPAD++ EXAMPLES */
+  .np-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .np-card {
+    padding: 18px 20px;
+  }
+
+  .np-card-title {
+    font-size: 1rem;
+    margin: 0 0 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .np-mode-badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .np-card-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 0 0 14px;
+  }
+
+  .np-block { margin-bottom: 10px; }
+
+  .np-block-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+
+  .code-block.empty { color: var(--muted); font-style: italic; }
+
+  /* PLAYGROUND */
+  .playground {
+    padding: 22px;
+  }
+
+  .pg-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 18px;
+  }
+
+  .pg-panel-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .pg-textarea,
+  .pg-input {
+    width: 100%;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    resize: vertical;
+    transition: border-color var(--t);
+  }
+
+  .pg-textarea { min-height: 160px; }
+  .pg-input { min-height: 44px; }
+
+  .pg-textarea:focus,
+  .pg-input:focus { border-color: var(--accent); }
+
+  .pg-input.invalid { border-color: var(--danger); }
+
+  .pg-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  fieldset.pg-flags {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px 14px;
+    margin: 0;
+  }
+
+  fieldset.pg-flags legend {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding: 0 6px;
+  }
+
+  .pg-flags-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 12px;
+  }
+
+  .pg-flag-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .pg-flag-item input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .pg-flag-item code { color: var(--accent-strong); }
+
+  .pg-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .pg-btn {
+    font-family: inherit;
+    font-size: 0.82rem;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: all var(--t);
+  }
+
+  .pg-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+  .pg-btn.primary { border-color: var(--accent); color: var(--accent-strong); }
+
+  .pg-copy-feedback {
+    font-size: 0.78rem;
+    color: var(--success);
+    align-self: center;
+    min-height: 1em;
+  }
+
+  .pg-presets {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pg-preset-btn {
+    font-family: inherit;
+    font-size: 0.78rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all var(--t);
+  }
+
+  .pg-preset-btn:hover { color: var(--accent-strong); border-color: var(--accent); }
+
+  /* RESULTS */
+  .pg-results { margin-top: 22px; }
+
+  .pg-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .pg-count {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .pg-count strong { color: var(--text); }
+
+  .pg-error {
+    display: none;
+    background: var(--danger-bg);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pg-error.show { display: flex; }
+  .pg-error .icon { flex-shrink: 0; }
+
+  .pg-highlight {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 60px;
+  }
+
+  .pg-highlight mark {
+    background: var(--mark-bg);
+    border-bottom: 2px solid var(--mark-border);
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+
+  .pg-highlight.empty-state { color: var(--muted); font-style: italic; }
+
+  .pg-matches-list {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pg-matches-list li {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pg-matches-list .match-text { color: var(--accent-strong); }
+  .pg-matches-list .match-meta { color: var(--muted); white-space: nowrap; }
+  .pg-matches-list .match-groups { width: 100%; color: var(--muted); font-size: 0.75rem; }
+
+  /* MENTAL MODEL */
+  .mm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .mm-item {
+    padding: 14px 16px;
+  }
+
+  .mm-symbol {
+    color: var(--accent-strong);
+    font-size: 1rem;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .mm-desc { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+  .mm-examples {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .mm-example { padding: 14px 16px; }
+  .mm-example p { margin: 6px 0 0; color: var(--muted); font-size: 0.88rem; }
+
+  /* LEARNING PATH */
+  .lp-list {
+    counter-reset: lp;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lp-list li {
+    counter-increment: lp;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px 12px 48px;
+    position: relative;
+    font-size: 0.92rem;
+  }
+
+  .lp-list li::before {
+    content: counter(lp);
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent-strong);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lp-note {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 14px;
+  }
+
+  footer.page-footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  footer.page-footer a { color: var(--muted); }
+
+  /* RESPONSIVE */
+  @media (max-width: 760px) {
+    .pg-grid { grid-template-columns: 1fr; }
+    .pg-flags-grid { grid-template-columns: 1fr 1fr; }
+    .wrap { padding: 16px 14px 60px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="home-link" href="../">← Portal Immortal</a>
+    <button class="theme-toggle" id="themeBtn" type="button" aria-label="Ganti tema terang/gelap">Light</button>
+  </div>
+
+  <header class="page-header">
+    <h1>Regex Cheat Sheet</h1>
+    <p class="page-sub">
+      Regex = Regular Expression — cara mendeskripsikan pola teks untuk mencari, memvalidasi,
+      atau mengganti teks secara otomatis. Referensi praktis untuk kerja sehari-hari di
+      Notepad++, SQL, log file, config file, dan text processing lainnya.
+    </p>
+  </header>
+
+  <!-- ================= CHEAT SHEET TABLE ================= -->
+  <section aria-labelledby="cheat-title">
+    <h2 class="section-title" id="cheat-title">Cheat Sheet<span class="tag">reference</span></h2>
+    <p class="section-desc">Pattern yang paling sering dipakai, beserta contoh singkat.</p>
+
+    <div class="table-scroll">
+      <table class="cheat-table">
+        <thead>
+          <tr><th>Pattern</th><th>Arti</th><th>Contoh</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>^</code></td><td>Awal baris</td><td><code>^SELECT</code></td></tr>
+          <tr><td><code>$</code></td><td>Akhir baris</td><td><code>;$</code></td></tr>
+          <tr><td><code>.</code></td><td>Satu karakter apa saja</td><td><code>a.c</code></td></tr>
+          <tr><td><code>\d</code></td><td>Digit / angka</td><td><code>\d+</code></td></tr>
+          <tr><td><code>\D</code></td><td>Bukan digit</td><td><code>\D</code></td></tr>
+          <tr><td><code>\w</code></td><td>Word character</td><td><code>\w+</code></td></tr>
+          <tr><td><code>\W</code></td><td>Bukan word character</td><td><code>\W</code></td></tr>
+          <tr><td><code>\s</code></td><td>Whitespace</td><td><code>\s+</code></td></tr>
+          <tr><td><code>\S</code></td><td>Bukan whitespace</td><td><code>\S+</code></td></tr>
+          <tr><td><code>+</code></td><td>Satu atau lebih</td><td><code>\d+</code></td></tr>
+          <tr><td><code>*</code></td><td>Nol atau lebih</td><td><code>\d*</code></td></tr>
+          <tr><td><code>?</code></td><td>Nol atau satu / opsional</td><td><code>colou?r</code></td></tr>
+          <tr><td><code>{n}</code></td><td>Tepat n kali</td><td><code>\d{4}</code></td></tr>
+          <tr><td><code>{n,m}</code></td><td>n sampai m kali</td><td><code>\d{2,4}</code></td></tr>
+          <tr><td><code>[]</code></td><td>Pilihan karakter</td><td><code>[ABC]</code></td></tr>
+          <tr><td><code>[^...]</code></td><td>Selain karakter</td><td><code>[^0-9]</code></td></tr>
+          <tr><td><code>()</code></td><td>Capture group</td><td><code>(\d+)</code></td></tr>
+          <tr><td><code>|</code></td><td>OR / atau</td><td><code>cat|dog</code></td></tr>
+          <tr><td><code>\.</code></td><td>Literal titik</td><td><code>\.</code></td></tr>
+          <tr><td><code>\1</code></td><td>Isi capture group 1</td><td><code>(\w+) ... \1</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= NOTEPAD++ EXAMPLES ================= -->
+  <section aria-labelledby="np-title">
+    <h2 class="section-title" id="np-title">Notepad++ Examples<span class="tag">find &amp; replace</span></h2>
+    <p class="section-desc">Format: Input → Find → Replace → Output. Search Mode di Notepad++: <strong>Regular expression</strong>.</p>
+
+    <div class="np-grid">
+
+      <div class="card np-card">
+        <h3 class="np-card-title">1. Tambah tanda kutip di akhir baris <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Menambahkan single quote di akhir setiap baris.</p>
+        <div class="np-block"><div class="np-block-label">Input</div><pre class="code-block">ABC
+DEF
+GHI</pre></div>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">$</pre></div>
+        <div class="np-block"><div class="np-block-label">Replace</div><pre class="code-block">'</pre></div>
+        <div class="np-block"><div class="np-block-label">Output</div><pre class="code-block">ABC'
+DEF'
+GHI'</pre></div>
+      </div>
+
+      <div class="card np-card">
+        <h3 class="np-card-title">2. Format baris jadi list SQL <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Menambahkan single quote + comma untuk SQL.</p>
+        <div class="np-block"><div class="np-block-label">Input</div><pre class="code-block">ABC
+DEF
+GHI</pre></div>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">^(.+)$</pre></div>
+        <div class="np-block"><div class="np-block-label">Replace</div><pre class="code-block">'\1',</pre></div>
+        <div class="np-block"><div class="np-block-label">Output</div><pre class="code-block">'ABC',
+'DEF',
+'GHI',</pre></div>
+      </div>
+
+      <div class="card np-card">
+        <h3 class="np-card-title">3. Hapus whitespace di awal baris <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Membersihkan indentasi/spasi di awal setiap baris.</p>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">^\s+</pre></div>
+        <div class="np-block"><div class="np-block-label">Replace</div><pre class="code-block empty">(kosong)</pre></div>
+      </div>
+
+      <div class="card np-card">
+        <h3 class="np-card-title">4. Hapus whitespace di akhir baris <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Membersihkan trailing space sebelum baris berakhir.</p>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">\s+$</pre></div>
+        <div class="np-block"><div class="np-block-label">Replace</div><pre class="code-block empty">(kosong)</pre></div>
+      </div>
+
+      <div class="card np-card">
+        <h3 class="np-card-title">5. Cari baris kosong <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Berguna untuk highlight atau menghapus baris kosong di file.</p>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">^$</pre></div>
+      </div>
+
+      <div class="card np-card">
+        <h3 class="np-card-title">6. Ubah format tanggal <span class="np-mode-badge">Regular expression</span></h3>
+        <p class="np-card-desc">Dari format ISO (YYYY-MM-DD) ke format DD/MM/YYYY.</p>
+        <div class="np-block"><div class="np-block-label">Input</div><pre class="code-block">2026-08-14</pre></div>
+        <div class="np-block"><div class="np-block-label">Find</div><pre class="code-block">(\d{4})-(\d{2})-(\d{2})</pre></div>
+        <div class="np-block"><div class="np-block-label">Replace</div><pre class="code-block">\3/\2/\1</pre></div>
+        <div class="np-block"><div class="np-block-label">Output</div><pre class="code-block">14/08/2026</pre></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE PLAYGROUND ================= -->
+  <section aria-labelledby="pg-title">
+    <h2 class="section-title" id="pg-title">Interactive Regex Playground<span class="tag">live</span></h2>
+    <p class="section-desc">
+      Semua proses berjalan di browser (client-side) — test string dan regex tidak pernah dikirim ke server mana pun.
+    </p>
+
+    <div class="card playground">
+      <div class="pg-grid">
+        <div class="pg-panel">
+          <label class="pg-panel-label" for="testStringArea">Test String</label>
+          <textarea id="testStringArea" class="pg-textarea" spellcheck="false"
+            placeholder="Tempel atau ketik teks yang ingin dicocokkan di sini...">Order 12345 was processed at 14:30.
+Order 67890 was processed at 15:45.</textarea>
+        </div>
+
+        <div class="pg-right-col">
+          <div class="pg-panel">
+            <label class="pg-panel-label" for="regexInput">Regular Expression</label>
+            <input id="regexInput" class="pg-input" type="text" inputmode="text" autocomplete="off"
+              spellcheck="false" placeholder="\d+" value="\d+"
+              aria-describedby="pgError" />
+          </div>
+
+          <fieldset class="pg-flags">
+            <legend>Flags</legend>
+            <div class="pg-flags-grid">
+              <label class="pg-flag-item"><input type="checkbox" id="flagG" checked><code>g</code> Global</label>
+              <label class="pg-flag-item"><input type="checkbox" id="flagI"><code>i</code> Ignore Case</label>
+              <label class="pg-flag-item"><input type="checkbox" id="flagM"><code>m</code> Multiline</label>
+              <label class="pg-flag-item"><input type="checkbox" id="flagS"><code>s</code> Dot All</label>
+            </div>
+          </fieldset>
+
+          <div class="pg-actions">
+            <button class="pg-btn" id="clearBtn" type="button">Clear</button>
+            <button class="pg-btn" id="copyBtn" type="button">Copy Regex</button>
+            <span class="pg-copy-feedback" id="copyFeedback" aria-live="polite"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-presets" id="presetRow" role="group" aria-label="Contoh preset regex">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="pg-results">
+        <div class="pg-status-row">
+          <span class="pg-count" id="matchCount" role="status" aria-live="polite">Matched: 0</span>
+        </div>
+
+        <div class="pg-error" id="pgError" role="alert" aria-live="assertive">
+          <span class="icon" aria-hidden="true">⚠</span>
+          <span id="pgErrorText"></span>
+        </div>
+
+        <div class="pg-panel-label">Highlighted Result</div>
+        <div class="pg-highlight" id="highlightResult"></div>
+
+        <ul class="pg-matches-list" id="matchesList" aria-label="Daftar match"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MENTAL MODEL ================= -->
+  <section aria-labelledby="mm-title">
+    <h2 class="section-title" id="mm-title">Regex Mental Model<span class="tag">santai</span></h2>
+    <p class="section-desc">Cara gampang mikirin simbol-simbol regex, tanpa perlu hafal semuanya sekaligus.</p>
+
+    <div class="mm-grid">
+      <div class="card mm-item"><code class="mm-symbol">^</code><p class="mm-desc">awal baris</p></div>
+      <div class="card mm-item"><code class="mm-symbol">$</code><p class="mm-desc">akhir baris</p></div>
+      <div class="card mm-item"><code class="mm-symbol">\d</code><p class="mm-desc">angka</p></div>
+      <div class="card mm-item"><code class="mm-symbol">\s</code><p class="mm-desc">whitespace</p></div>
+      <div class="card mm-item"><code class="mm-symbol">.</code><p class="mm-desc">karakter apa saja</p></div>
+      <div class="card mm-item"><code class="mm-symbol">+</code><p class="mm-desc">satu atau lebih</p></div>
+      <div class="card mm-item"><code class="mm-symbol">*</code><p class="mm-desc">nol atau lebih</p></div>
+      <div class="card mm-item"><code class="mm-symbol">?</code><p class="mm-desc">opsional</p></div>
+      <div class="card mm-item"><code class="mm-symbol">()</code><p class="mm-desc">group</p></div>
+      <div class="card mm-item"><code class="mm-symbol">\1</code><p class="mm-desc">isi group pertama</p></div>
+      <div class="card mm-item"><code class="mm-symbol">|</code><p class="mm-desc">OR / atau</p></div>
+    </div>
+
+    <div class="mm-examples">
+      <div class="card mm-example">
+        <code>\d+</code>
+        <p>berarti "satu atau lebih angka".</p>
+      </div>
+      <div class="card mm-example">
+        <code>^SELECT</code>
+        <p>berarti "baris yang dimulai dengan SELECT".</p>
+      </div>
+      <div class="card mm-example">
+        <code>\s+</code>
+        <p>berarti "satu atau lebih whitespace".</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LEARNING PATH ================= -->
+  <section aria-labelledby="lp-title">
+    <h2 class="section-title" id="lp-title">Mulai Belajar dari Sini<span class="tag">roadmap</span></h2>
+    <ol class="lp-list">
+      <li>Hafalkan <code>^</code> dan <code>$</code></li>
+      <li>Hafalkan <code>\d</code> dan <code>\s</code></li>
+      <li>Pahami <code>+</code>, <code>*</code>, dan <code>?</code></li>
+      <li>Pelajari <code>[]</code> dan <code>()</code></li>
+      <li>Pelajari capture group dan <code>\1</code>, <code>\2</code></li>
+      <li>Mulai membuat pola sendiri</li>
+    </ol>
+    <p class="lp-note">
+      Regex tidak perlu langsung dihafalkan semuanya — lebih baik belajar dari pola yang sering dipakai,
+      lalu tambahkan pelan-pelan lewat playground di atas.
+    </p>
+  </section>
+
+  <footer class="page-footer">
+    <a href="../">← Kembali ke Portal Immortal</a>
+  </footer>
+
+</div>
+
+<!-- Worker source, kept inert (not executed inline) and loaded into a Blob Worker at runtime -->
+<script type="text/plain" id="regexWorkerSrc">
+self.onmessage = function (e) {
+  var pattern = e.data.pattern;
+  var flags = e.data.flags;
+  var text = e.data.text;
+
+  try {
+    var re = new RegExp(pattern, flags);
+    var matches = [];
+    var MAX_MATCHES = 5000;
+
+    if (flags.indexOf('g') !== -1) {
+      var m;
+      var guard = 0;
+      while ((m = re.exec(text)) !== null && guard < MAX_MATCHES) {
+        matches.push({ match: m[0], index: m.index, groups: m.slice(1) });
+        if (m[0].length === 0) {
+          re.lastIndex += 1;
+        }
+        guard += 1;
+      }
+    } else {
+      var single = re.exec(text);
+      if (single) {
+        matches.push({ match: single[0], index: single.index, groups: single.slice(1) });
+      }
+    }
+
+    self.postMessage({ ok: true, matches: matches, truncated: matches.length >= MAX_MATCHES });
+  } catch (err) {
+    self.postMessage({ ok: false, error: err.message });
+  }
+};
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Theme toggle ----------
+  var themeBtn = document.getElementById('themeBtn');
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeBtn.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      themeBtn.textContent = 'Dark';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeBtn.textContent = 'Light';
+    }
+  });
+
+  // ---------- Element refs ----------
+  var testStringArea = document.getElementById('testStringArea');
+  var regexInput = document.getElementById('regexInput');
+  var flagG = document.getElementById('flagG');
+  var flagI = document.getElementById('flagI');
+  var flagM = document.getElementById('flagM');
+  var flagS = document.getElementById('flagS');
+  var clearBtn = document.getElementById('clearBtn');
+  var copyBtn = document.getElementById('copyBtn');
+  var copyFeedback = document.getElementById('copyFeedback');
+  var presetRow = document.getElementById('presetRow');
+  var matchCount = document.getElementById('matchCount');
+  var pgError = document.getElementById('pgError');
+  var pgErrorText = document.getElementById('pgErrorText');
+  var highlightResult = document.getElementById('highlightResult');
+  var matchesList = document.getElementById('matchesList');
+
+  // ---------- HTML escaping (XSS-safe rendering) ----------
+  var ESCAPE_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) { return ESCAPE_MAP[c]; });
+  }
+
+  // ---------- Worker-backed safe regex execution ----------
+  var workerSrc = document.getElementById('regexWorkerSrc').textContent;
+  var workerBlobUrl = null;
+  try {
+    var blob = new Blob([workerSrc], { type: 'application/javascript' });
+    workerBlobUrl = URL.createObjectURL(blob);
+  } catch (e) {
+    workerBlobUrl = null;
+  }
+
+  var currentWorker = null;
+  var workerTimeoutId = null;
+  var WORKER_TIMEOUT_MS = 1200;
+
+  function stopCurrentWorker() {
+    if (workerTimeoutId) { clearTimeout(workerTimeoutId); workerTimeoutId = null; }
+    if (currentWorker) { currentWorker.terminate(); currentWorker = null; }
+  }
+
+  function runViaWorker(pattern, flags, text, onDone) {
+    stopCurrentWorker();
+    if (!workerBlobUrl || typeof Worker === 'undefined') {
+      // Fallback: run inline with basic zero-length-match guard (no hang protection)
+      try {
+        var re = new RegExp(pattern, flags);
+        var matches = [];
+        if (flags.indexOf('g') !== -1) {
+          var m; var guard = 0;
+          while ((m = re.exec(text)) !== null && guard < 5000) {
+            matches.push({ match: m[0], index: m.index, groups: m.slice(1) });
+            if (m[0].length === 0) re.lastIndex += 1;
+            guard += 1;
+          }
+        } else {
+          var single = re.exec(text);
+          if (single) matches.push({ match: single[0], index: single.index, groups: single.slice(1) });
+        }
+        onDone({ ok: true, matches: matches });
+      } catch (err) {
+        onDone({ ok: false, error: err.message });
+      }
+      return;
+    }
+
+    currentWorker = new Worker(workerBlobUrl);
+    workerTimeoutId = setTimeout(function () {
+      stopCurrentWorker();
+      onDone({ ok: false, error: 'Regex ini butuh waktu terlalu lama untuk dijalankan (kemungkinan pola menyebabkan catastrophic backtracking). Coba sederhanakan pattern-nya.' });
+    }, WORKER_TIMEOUT_MS);
+
+    currentWorker.onmessage = function (e) {
+      clearTimeout(workerTimeoutId);
+      workerTimeoutId = null;
+      var result = e.data;
+      stopCurrentWorker();
+      onDone(result);
+    };
+
+    currentWorker.onerror = function () {
+      stopCurrentWorker();
+      onDone({ ok: false, error: 'Terjadi error saat menjalankan regex.' });
+    };
+
+    currentWorker.postMessage({ pattern: pattern, flags: flags, text: text });
+  }
+
+  // ---------- Rendering ----------
+  function getFlags() {
+    var f = '';
+    if (flagG.checked) f += 'g';
+    if (flagI.checked) f += 'i';
+    if (flagM.checked) f += 'm';
+    if (flagS.checked) f += 's';
+    return f;
+  }
+
+  function showError(msg) {
+    pgErrorText.textContent = msg;
+    pgError.classList.add('show');
+    regexInput.classList.add('invalid');
+  }
+
+  function hideError() {
+    pgErrorText.textContent = '';
+    pgError.classList.remove('show');
+    regexInput.classList.remove('invalid');
+  }
+
+  function renderHighlight(text, matches) {
+    if (!text) {
+      highlightResult.className = 'pg-highlight empty-state';
+      highlightResult.textContent = 'Masukkan test string untuk melihat hasil.';
+      return;
+    }
+    highlightResult.className = 'pg-highlight';
+    if (!matches || matches.length === 0) {
+      highlightResult.textContent = text;
+      return;
+    }
+    var sorted = matches.slice().sort(function (a, b) { return a.index - b.index; });
+    var html = '';
+    var lastIndex = 0;
+    sorted.forEach(function (m, i) {
+      var start = m.index;
+      var end = m.index + m.match.length;
+      html += escapeHtml(text.slice(lastIndex, start));
+      html += '<mark title="Match ' + (i + 1) + '">' + escapeHtml(text.slice(start, end)) + '</mark>';
+      lastIndex = end;
+    });
+    html += escapeHtml(text.slice(lastIndex));
+    highlightResult.innerHTML = html;
+  }
+
+  function renderMatchesList(matches) {
+    matchesList.innerHTML = '';
+    if (!matches || matches.length === 0) return;
+    matches.forEach(function (m, i) {
+      var li = document.createElement('li');
+
+      var textSpan = document.createElement('span');
+      textSpan.className = 'match-text';
+      textSpan.textContent = '#' + (i + 1) + ' "' + m.match + '"';
+
+      var metaSpan = document.createElement('span');
+      metaSpan.className = 'match-meta';
+      metaSpan.textContent = 'index ' + m.index;
+
+      li.appendChild(textSpan);
+      li.appendChild(metaSpan);
+
+      if (m.groups && m.groups.length > 0) {
+        var groupsSpan = document.createElement('span');
+        groupsSpan.className = 'match-groups';
+        var parts = [];
+        m.groups.forEach(function (g, gi) {
+          parts.push('group ' + (gi + 1) + ': ' + (g === undefined ? '(kosong)' : '"' + g + '"'));
+        });
+        groupsSpan.textContent = parts.join(' · ');
+        li.appendChild(groupsSpan);
+      }
+
+      matchesList.appendChild(li);
+    });
+  }
+
+  // ---------- Main run loop (debounced) ----------
+  var debounceId = null;
+  var DEBOUNCE_MS = 150;
+
+  function scheduleRun() {
+    if (debounceId) clearTimeout(debounceId);
+    debounceId = setTimeout(runRegex, DEBOUNCE_MS);
+  }
+
+  function runRegex() {
+    var pattern = regexInput.value;
+    var text = testStringArea.value;
+    var flags = getFlags();
+
+    hideError();
+
+    if (pattern === '') {
+      matchCount.innerHTML = 'Matched: <strong>0</strong>';
+      renderHighlight(text, []);
+      renderMatchesList([]);
+      return;
+    }
+
+    runViaWorker(pattern, flags, text, function (result) {
+      if (!result.ok) {
+        showError(result.error || 'Regex tidak valid.');
+        matchCount.innerHTML = 'Matched: <strong>0</strong>';
+        renderHighlight(text, []);
+        renderMatchesList([]);
+        return;
+      }
+      var matches = result.matches || [];
+      matchCount.innerHTML = 'Matched: <strong>' + matches.length + '</strong>' +
+        (result.truncated ? ' (dibatasi, terlalu banyak match)' : '');
+      renderHighlight(text, matches);
+      renderMatchesList(matches);
+    });
+  }
+
+  // ---------- Presets ----------
+  var PRESETS = [
+    {
+      name: 'Find Numbers',
+      text: 'Order 12345 was processed at 14:30.\nOrder 67890 was processed at 15:45.',
+      pattern: '\\d+',
+      flags: { g: true, i: false, m: false, s: false }
+    },
+    {
+      name: 'Find SQL Keywords',
+      text: "SELECT * FROM users;\nUPDATE users SET status = 'ACTIVE';\nDELETE FROM users WHERE id = 10;",
+      pattern: 'SELECT|UPDATE|DELETE',
+      flags: { g: true, i: true, m: false, s: false }
+    },
+    {
+      name: 'Find Dates',
+      text: '2026-08-14\n2026-08-15\n2026-08-16',
+      pattern: '\\d{4}-\\d{2}-\\d{2}',
+      flags: { g: true, i: false, m: false, s: false }
+    }
+  ];
+
+  PRESETS.forEach(function (preset) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pg-preset-btn';
+    btn.textContent = preset.name;
+    btn.addEventListener('click', function () {
+      testStringArea.value = preset.text;
+      regexInput.value = preset.pattern;
+      flagG.checked = !!preset.flags.g;
+      flagI.checked = !!preset.flags.i;
+      flagM.checked = !!preset.flags.m;
+      flagS.checked = !!preset.flags.s;
+      runRegex();
+    });
+    presetRow.appendChild(btn);
+  });
+
+  // ---------- Buttons ----------
+  clearBtn.addEventListener('click', function () {
+    testStringArea.value = '';
+    regexInput.value = '';
+    flagG.checked = true;
+    flagI.checked = false;
+    flagM.checked = false;
+    flagS.checked = false;
+    hideError();
+    runRegex();
+    testStringArea.focus();
+  });
+
+  copyBtn.addEventListener('click', function () {
+    var value = regexInput.value;
+    function showCopied() {
+      copyFeedback.textContent = 'Disalin!';
+      setTimeout(function () { copyFeedback.textContent = ''; }, 1500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(showCopied, function () {
+        fallbackCopy(value, showCopied);
+      });
+    } else {
+      fallbackCopy(value, showCopied);
+    }
+  });
+
+  function fallbackCopy(text, done) {
+    var tmp = document.createElement('textarea');
+    tmp.value = text;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); } catch (e) { /* no-op */ }
+    document.body.removeChild(tmp);
+    done();
+  }
+
+  // ---------- Event bindings ----------
+  testStringArea.addEventListener('input', scheduleRun);
+  regexInput.addEventListener('input', scheduleRun);
+  [flagG, flagI, flagM, flagS].forEach(function (el) {
+    el.addEventListener('change', runRegex);
+  });
+
+  // ---------- Init ----------
+  runRegex();
+})();
+</script>
+
+</body>
+</html>
