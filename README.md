@@ -86,5 +86,5 @@ https://portal-immortal.github.io/
 
 ## ✨ Author
 
-Developed by Maulana Yusuf
+Thanks to : اللَّهُ سُبْحَانَهُ وَ تَعَالَى
 Continuous learning. Continuous building.
